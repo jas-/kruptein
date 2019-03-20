@@ -1,7 +1,7 @@
 'use strict'
 
 const crypto = require('crypto')
-const kruptein = require('../src/kruptein.js')
+const kruptein = require('../lib/kruptein.js')
 
 let hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],

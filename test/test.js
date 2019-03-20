@@ -2,7 +2,7 @@
 
 const crypto = require('crypto')
 const expect = require('expect.js')
-const kruptein = require('../src/crypto.js')
+const kruptein = require('../lib/kruptein.js')
 
 
 let hmac, ciphers = [], hashes = [],
@@ -42,7 +42,7 @@ for (let cipher in ciphers) {
 
 
         it('Missing secret', done => {
-          let kruptein_copy = require('../src/crypto.js')
+          let kruptein_copy = require('../lib/kruptein.js')
 
           options.secret = ''
 
@@ -57,7 +57,7 @@ for (let cipher in ciphers) {
 
 
         it('Invalid key size', done => {
-          let kruptein_tmp = require('../src/crypto.js')
+          let kruptein_tmp = require('../lib/kruptein.js')
 
           let opts = {
             key_size: 99999,
@@ -81,7 +81,7 @@ for (let cipher in ciphers) {
 
 
         it('Invalid IV size', done => {
-          let kruptein_tmp = require('../src/crypto.js')
+          let kruptein_tmp = require('../lib/kruptein.js')
 
           let opts = {
             iv_size: 99999,
