@@ -15,13 +15,14 @@ To install `npm install kruptein`
 
 
 ## options ##
-* `secret`      {String}    (Required) Ciphertext passphrase
-* `algorithm`   {String}    (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-* `hashing`     {String}    (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
-* `encodeas`    {String}    (optional) Output encoding. Currently only supports `binary`.
-* `key_size`    {Number}    (Optional) Key size bytes (should match block size of algorithm). Default: `32`
-* `iv_size`     {Number}    (Optional) IV size bytes. Default: `16`.
-* `at_size`     {Number}    (Optional) Authentication tag size. Only applicable to `ccm`, `gcm` & `ocb` cipher modes. Default: `128`.
+* `secret` (Required) Ciphertext passphrase
+* `algorithm` (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
+* `hashing` (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
+* `encodeas` (Optional) Output encoding. Currently only supports `binary`.
+* `key_size` (Optional) Key size bytes (should match block size of algorithm). Default: `32`
+* `iv_size` (Optional) IV size bytes. Default: `16`.
+* `at_size` (Optional) Authentication tag size. Applicable to `ccm`, `gcm` & `ocb` cipher modes. Default: `128`.
+
 
 ## tests ##
 To test `npm test`
