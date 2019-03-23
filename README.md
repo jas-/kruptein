@@ -6,7 +6,8 @@ crypto; from `kruptein` to hide or conceal
 ![Downloads](https://img.shields.io/npm/dm/kruptein.svg)
 [![Dependencies](https://img.shields.io/david/jas-/kruptein.svg)](https://david-dm.org/jas-/kruptein)
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
-[![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=master)](https://travis-ci.org/jas-/kruptein)
+[![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=v0.0.5)](https://travis-ci.org/jas-/kruptein)
+[![codecov](https://codecov.io/gh/jas-/kruptein/branch/v0.0.5/graph/badge.svg)](https://codecov.io/gh/jas-/kruptein)
 
 
 ## install ##
