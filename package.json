@@ -28,7 +28,7 @@
   },
   "scripts": {
     "lint": "xo src",
-    "cover": "nyc report --reporter=text-lcov > coverage.lcoc && codecov",
+    "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "nyc mocha"
   },
   "xo": {
