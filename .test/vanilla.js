@@ -41,7 +41,7 @@ for (let cipher in ciphers) {
         console.log(err)
       }
 
-      //console.log(ct)
+      console.log(JSON.stringify(ct))
 
       try {
         pt = kruptein.get(JSON.stringify(ct))
@@ -50,6 +50,7 @@ for (let cipher in ciphers) {
       }
 
       console.log(pt)
+      console.log('')
     }
   }
 }
