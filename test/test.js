@@ -1,5 +1,6 @@
 'use strict'
 
+const fs = require('fs')
 const crypto = require('crypto')
 const expect = require('expect.js')
 const kruptein = require('../lib/kruptein.js')
@@ -38,10 +39,10 @@ for (let cipher in ciphers) {
       kruptein.init(options)
 
       describe('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }', () => {
-        let ct, pt
+        let ct, pt, in_file="/var/tmp/test.pt", out_file="/var/tmp/test.ct"
 
 
-        it('Missing secret', done => {
+        it('Missing Secret', done => {
           let kruptein_copy = require('../lib/kruptein.js')
 
           options.secret = ''
@@ -56,7 +57,7 @@ for (let cipher in ciphers) {
         })
 
 
-        it('Invalid key size', done => {
+        it('Invalid Key Size', done => {
           let kruptein_tmp = require('../lib/kruptein.js')
 
           let opts = {
@@ -80,7 +81,7 @@ for (let cipher in ciphers) {
         })
 
 
-        it('Invalid IV size', done => {
+        it('Invalid IV Size', done => {
           let kruptein_tmp = require('../lib/kruptein.js')
 
           let opts = {
@@ -117,7 +118,37 @@ for (let cipher in ciphers) {
         })
 
 
-        it('HMAC validation', done => {
+        it('Encrypt File', done => {
+          fs.writeFile(in_file, '123, easy as ABC. ABC, easy as 123', (err) => {
+            expect(err).to.be.null
+          })
+          expect(in_file).to.exist
+
+          fs.readFile(in_file, (err, data) => {
+            expect(err).to.be.null
+              
+            fs.writeFile(out_file, kruptein.set(data), (err) => {
+              expect(err).to.be.null
+            })
+          })
+
+          expect(out_file).to.exist
+
+          fs.exists(in_file, (err) => {
+            expect(err).to.be.null
+
+            fs.unlink(in_file, (err) => {
+              expect(err).to.be.null
+            })
+          })
+
+          expect(in_file).to.not.exist
+
+          done()
+        })
+
+
+        it('HMAC Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
@@ -132,11 +163,36 @@ for (let cipher in ciphers) {
           } catch(err) {
             expect(err).to.equal('Encrypted session was tampered with!')
           }
+
           done()
         })
 
 
-        it('Authentication tag validation', done => {
+        it('HMAC Validation File', done => {
+          fs.readFile(out_file, (err, data) => {
+            expect(err).to.be.null
+
+            try {
+              data = JSON.parse(data)
+            } catch(err) {
+              expect(err).to.be.null
+            }
+console.log(data)
+            data.hmac = 'funky chicken'
+            data = JSON.stringify(data)
+
+            try {
+              pt = kruptein.get(data)
+            } catch(err) {
+              expect(err).to.equal('Encrypted session was tampered with!')
+            }
+          })
+
+          done()
+        })
+
+
+        it('Authentication Tag Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
@@ -158,7 +214,35 @@ for (let cipher in ciphers) {
         })
 
 
-        it('Additional authentication data validation', done => {
+        it('Authentication Tag Validation File', done => {
+          fs.readFile(out_file, (err, data) => {
+            expect(err).to.be.null
+
+            try {
+              data = JSON.parse(data)
+            } catch(err) {
+              expect(err).to.be.null
+            }
+
+            if (ct.at) {
+              data.at = 'funky chicken'
+              data = JSON.stringify(data)
+            } else {
+              JSON.stringify(data)
+            }
+
+            try {
+              pt = kruptein.get(data)
+            } catch(err) {
+              expect(err).to.match(/Unsupported state or unable to authenticate data/)
+            }
+          })
+
+          done()
+        })
+
+
+        it('Additional Authentication Data Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
@@ -180,18 +264,78 @@ for (let cipher in ciphers) {
         })
 
 
+        it('Additional Authentication Data Validation File', done => {
+          fs.readFile(out_file, (err, data) => {
+            expect(err).to.be.null
+
+            try {
+              data = JSON.parse(data)
+            } catch(err) {
+              expect(err).to.be.null
+            }
+
+            if (ct.aad) {
+              data.aad = 'funky chicken'
+              data = JSON.stringify(data)
+            } else {
+              JSON.stringify(data)
+            }
+
+            try {
+              pt = kruptein.get(data)
+            } catch(err) {
+              expect(err).to.match(/Unsupported state or unable to authenticate data/)
+            }
+          })
+
+          done()
+        })
+
+
         it('Decrypt', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
             expect(err).to.be.null
           }
+
           try {
             pt = kruptein.get(JSON.stringify(ct))
           } catch(err) {
             expect(err).to.be.null
           }
+
           expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
+
+          done()
+        })
+
+
+        it('Decrypt File', done => {
+          fs.readFile(out_file, (err, data) => {
+            expect(err).to.be.null
+
+            try {
+              pt = kruptein.get(data)
+            } catch(err) {
+              expect(err).to.be.null
+            }
+
+            pt = Buffer.from(JSON.parse(pt).data).toString('utf8')
+
+            expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
+          })
+
+          fs.exists(out_file, (err) => {
+            expect(err).to.be.null
+
+            fs.unlink(out_file, (err) => {
+              expect(err).to.be.null
+            })
+          })
+
+          expect(out_file).to.not.exist
+
           done()
         })
       })

@@ -56,7 +56,7 @@ const options = {
   secret: 'squirrel'
 }
 
-let plaintext = kruptein.get(plaintext);
+let plaintext = kruptein.get(ciphertext);
 ```
 
 
