@@ -1,6 +1,5 @@
 'use strict'
 
-const fs = require('fs')
 const crypto = require('crypto')
 const expect = require('expect.js')
 const kruptein = require('../lib/kruptein.js')
@@ -111,38 +110,10 @@ for (let cipher in ciphers) {
           } catch(err) {
             expect(err).to.be.null
           }
+
           expect(ct).to.have.property('ct')
           expect(ct).to.have.property('iv')
           expect(ct).to.have.property('hmac')
-          done()
-        })
-
-
-        it('Encrypt File', done => {
-          fs.writeFile(in_file, '123, easy as ABC. ABC, easy as 123', (err) => {
-            expect(err).to.be.null
-          })
-          expect(in_file).to.exist
-
-          fs.readFile(in_file, (err, data) => {
-            expect(err).to.be.null
-              
-            fs.writeFile(out_file, kruptein.set(data), (err) => {
-              expect(err).to.be.null
-            })
-          })
-
-          expect(out_file).to.exist
-
-          fs.exists(in_file, (err) => {
-            expect(err).to.be.null
-
-            fs.unlink(in_file, (err) => {
-              expect(err).to.be.null
-            })
-          })
-
-          expect(in_file).to.not.exist
 
           done()
         })
@@ -154,6 +125,10 @@ for (let cipher in ciphers) {
           } catch(err) {
             expect(err).to.be.null
           }
+
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
 
           ct.hmac = 'funky chicken'
           ct = JSON.stringify(ct)
@@ -168,29 +143,6 @@ for (let cipher in ciphers) {
         })
 
 
-        it('HMAC Validation File', done => {
-          fs.readFile(out_file, (err, data) => {
-            expect(err).to.be.null
-
-            try {
-              data = JSON.parse(data)
-            } catch(err) {
-              expect(err).to.be.null
-            }
-console.log(data)
-            data.hmac = 'funky chicken'
-            data = JSON.stringify(data)
-
-            try {
-              pt = kruptein.get(data)
-            } catch(err) {
-              expect(err).to.equal('Encrypted session was tampered with!')
-            }
-          })
-
-          done()
-        })
-
 
         it('Authentication Tag Validation', done => {
           try {
@@ -202,6 +154,10 @@ console.log(data)
           if (!ct.at)
             return done()
     
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
+
           ct.at = 'funky chicken'
           ct = JSON.stringify(ct)
 
@@ -214,40 +170,16 @@ console.log(data)
         })
 
 
-        it('Authentication Tag Validation File', done => {
-          fs.readFile(out_file, (err, data) => {
-            expect(err).to.be.null
-
-            try {
-              data = JSON.parse(data)
-            } catch(err) {
-              expect(err).to.be.null
-            }
-
-            if (ct.at) {
-              data.at = 'funky chicken'
-              data = JSON.stringify(data)
-            } else {
-              JSON.stringify(data)
-            }
-
-            try {
-              pt = kruptein.get(data)
-            } catch(err) {
-              expect(err).to.match(/Unsupported state or unable to authenticate data/)
-            }
-          })
-
-          done()
-        })
-
-
         it('Additional Authentication Data Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
             expect(err).to.be.null
           }
+
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
 
           if (!ct.aad)
             return done()
@@ -264,40 +196,16 @@ console.log(data)
         })
 
 
-        it('Additional Authentication Data Validation File', done => {
-          fs.readFile(out_file, (err, data) => {
-            expect(err).to.be.null
-
-            try {
-              data = JSON.parse(data)
-            } catch(err) {
-              expect(err).to.be.null
-            }
-
-            if (ct.aad) {
-              data.aad = 'funky chicken'
-              data = JSON.stringify(data)
-            } else {
-              JSON.stringify(data)
-            }
-
-            try {
-              pt = kruptein.get(data)
-            } catch(err) {
-              expect(err).to.match(/Unsupported state or unable to authenticate data/)
-            }
-          })
-
-          done()
-        })
-
-
         it('Decrypt', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
           } catch(err) {
             expect(err).to.be.null
           }
+
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
 
           try {
             pt = kruptein.get(JSON.stringify(ct))
@@ -306,35 +214,6 @@ console.log(data)
           }
 
           expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
-
-          done()
-        })
-
-
-        it('Decrypt File', done => {
-          fs.readFile(out_file, (err, data) => {
-            expect(err).to.be.null
-
-            try {
-              pt = kruptein.get(data)
-            } catch(err) {
-              expect(err).to.be.null
-            }
-
-            pt = Buffer.from(JSON.parse(pt).data).toString('utf8')
-
-            expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
-          })
-
-          fs.exists(out_file, (err) => {
-            expect(err).to.be.null
-
-            fs.unlink(out_file, (err) => {
-              expect(err).to.be.null
-            })
-          })
-
-          expect(out_file).to.not.exist
 
           done()
         })
