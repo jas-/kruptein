@@ -9,11 +9,13 @@ let hmac, ciphers = [], hashes = [],
     //encoding = ['base64', 'binary', 'hex']
 
 const options = {
-  secret: 'squirrel'
+  secret: 'squirrel',
+  debug: true
 }
 
 ciphers = crypto.getCiphers()
 hashes = crypto.getHashes()
+
 
 for (let cipher in ciphers) {
   if (!ciphers[cipher].match(/^aes/i) || ciphers[cipher].match(/hmac|ccm|wrap/))

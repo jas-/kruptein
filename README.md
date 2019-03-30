@@ -27,8 +27,6 @@ To install `npm install kruptein`
 * `key_size` (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 * `iv_size` (Optional) IV size bytes. Default: `16`.
 * `at_size` (Optional) Authentication tag size. Applicable to `ccm`, `gcm` & `ocb` cipher modes. Default: `128`.
-* `at` (Optional) Supply the `AuthTag` during `.get()`. Default: Retrieves from `set()`.
-* `aad` (Optional) Supply the `Additional Authentication Data`. Default: Derives new `AAD` from `iv` & `secret`.
 
 
 ## tests ##
@@ -39,7 +37,10 @@ To test `npm test`
 See below for usage.
 
 
-### get ###
+### set ###
+To create new ciphertext; `.set(plaintext, [additional authentication data]`
+
+
 ```javascript
 const kruptein = require('kruptein');
 
@@ -50,7 +51,9 @@ const options = {
 let ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
-### set ###
+### get ###
+To retrieve plaintext; `.get(ciphertext, [{at: authentication tag, aad: additional authentication data}]`
+
 ```javascript
 const kruptein = require('kruptein');
 

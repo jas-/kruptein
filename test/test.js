@@ -12,7 +12,8 @@ let hmac, ciphers = [], hashes = [],
 
 
 const options = {
-  secret: 'squirrel'
+  secret: 'squirrel',
+  debug: true
 }
 
 
@@ -35,10 +36,15 @@ for (let cipher in ciphers) {
     for (let enc in encoding) {
       options.encodeas = encoding[enc]
 
-      kruptein.init(options)
-
       describe('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }', () => {
         let ct, pt, in_file="/var/tmp/test.pt", out_file="/var/tmp/test.ct"
+
+
+        beforeEach(done =>  {
+  console.log(ciphers[cipher])
+          console.log(options.algorithm)
+          kruptein.init(options)
+        })
 
 
         it('Missing Secret', done => {
@@ -115,6 +121,11 @@ for (let cipher in ciphers) {
           expect(ct).to.have.property('iv')
           expect(ct).to.have.property('hmac')
 
+          if (options.algorithm.match(/ccm|gcm|ocb/))
+            expect(ct).to.have.property('at')
+
+          //console.log(JSON.stringify(ct))
+
           done()
         })
 
@@ -143,7 +154,6 @@ for (let cipher in ciphers) {
         })
 
 
-
         it('Authentication Tag Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
@@ -170,6 +180,35 @@ for (let cipher in ciphers) {
         })
 
 
+        it('Authentication Tag Validation (option)', done => {
+          try {
+            ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+          } catch(err) {
+            expect(err).to.be.null
+          }
+
+          if (!ct.at)
+            return done()
+    
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
+
+          let opts = {at: ct.at}
+          ct = JSON.stringify(ct)
+
+          try {
+            pt = kruptein.get(ct, opts)
+          } catch(err) {
+            expect(err).to.be.null
+          }
+
+          expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
+
+          done()
+        })
+
+
         it('Additional Authentication Data Validation', done => {
           try {
             ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
@@ -192,6 +231,35 @@ for (let cipher in ciphers) {
           } catch(err) {
             expect(err).to.match(/Unsupported state or unable to authenticate data/)
           }
+          done()
+        })
+
+
+        it('Additional Authentication Data Validation (option)', done => {
+          try {
+            ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+          } catch(err) {
+            expect(err).to.be.null
+          }
+
+          if (!ct.aad)
+            return done()
+    
+          expect(ct).to.have.property('ct')
+          expect(ct).to.have.property('iv')
+          expect(ct).to.have.property('hmac')
+
+          let opts = {aad: ct.aad}
+          ct = JSON.stringify(ct)
+
+          try {
+            pt = kruptein.get(ct, opts)
+          } catch(err) {
+            expect(err).to.be.null
+          }
+
+          expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
+
           done()
         })
 

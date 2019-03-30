@@ -34,5 +34,8 @@
   },
   "xo": {
     "space": 2
+  },
+  "dependencies": {
+    "mocha-each": "^1.2.0"
   }
 }
