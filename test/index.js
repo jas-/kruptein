@@ -11,7 +11,8 @@ let hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     encoding = ['binary'],
     tests = [],
-    plaintext = "123, easy as ABC. ABC, easy as 123"
+    plaintext = "123, easy as ABC. ABC, easy as 123",
+    version = process.version.replace(/^v/, "").split(".", 1)[0]
 
 
 // Filter getCiphers()
@@ -164,8 +165,13 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct)
 
-        if (kruptein.flag)
-          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+        if (kruptein.flag) {
+          if (version >= 10) {
+            expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+          } else {
+            expect(pt).to.match(/invalid key length/)
+          }
+        }
       } catch(err) {
         expect(err).to.equal('Encrypted session was tampered with!')
       }
@@ -196,7 +202,11 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct)
       } catch(err) {
-        expect(err).to.match(/Unsupported state or unable to authenticate data/)
+        if (version >= 10) {
+          expect(err).to.match(/Unsupported state or unable to authenticate data/)
+        } else {
+          expect(err).to.match(/invalid key length/)
+        }
       }
 
       done()
@@ -225,7 +235,11 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        expect(err).to.match(/Unsupported state or unable to authenticate data/)
+        if (version >= 10) {
+          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+        } else {
+          expect(pt).to.match(/invalid key length/)
+        }
       }
 
       done()
@@ -254,7 +268,11 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct)
       } catch(err) {
-        expect(err).to.match(/Unsupported state or unable to authenticate data/)
+        if (version >= 10) {
+          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+        } else {
+          expect(pt).to.match(/invalid key length/)
+        }
       }
 
       done()
@@ -286,7 +304,11 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        expect(err).to.match(/Unsupported state or unable to authenticate data/)
+        if (version >= 10) {
+          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+        } else {
+          expect(pt).to.match(/invalid key length/)
+        }
       }
 
       done()
