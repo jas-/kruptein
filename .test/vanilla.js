@@ -13,20 +13,23 @@ const options = {
   debug: true
 }
 
-ciphers = crypto.getCiphers()
-hashes = crypto.getHashes()
+// Filter getCiphers()
+ciphers = crypto.getCiphers().filter(cipher => {
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm/))
+    return cipher
+})
+
+// Filter getHashes()
+hashes = crypto.getHashes().filter(hash => {
+  if (hash.match(/^sha[2|3|5]/i) && !hash.match(/rsa/i))
+    return hash
+})
 
 
 for (let cipher in ciphers) {
-  if (!ciphers[cipher].match(/^aes/i) || ciphers[cipher].match(/hmac|ccm|wrap/))
-    continue
-
   options.algorithm = ciphers[cipher]
 
   for (let hash in hashes) {
-    if (!hashes[hash].match(/^sha[2|3|5]/i) || hashes[hash].match(/rsa/i))
-      continue
-
     options.hashing = hashes[hash]
 
     for (let enc in encoding) {

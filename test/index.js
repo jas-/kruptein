@@ -10,12 +10,13 @@ const kruptein = require('../lib/kruptein.js')
 let hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     encoding = ['binary'],
-    tests = []
+    tests = [],
+    plaintext = "123, easy as ABC. ABC, easy as 123"
 
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap/))
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm/))
     return cipher
 })
 
@@ -37,7 +38,8 @@ ciphers.forEach(cipher => {
             'algorithm': cipher,
             'hashing': hash,
             'encodeas': encode,
-            'secret': 'squirrel'
+            'secret': 'squirrel',
+            'debug': false
           }
         }
       )
@@ -52,8 +54,9 @@ tests.forEach(test => {
     let ct, pt
 
     // Init kruptein with the test options
-    before(done => {
-      done(kruptein.init(test.options))
+    beforeEach(done => {
+      kruptein.init(test.options)
+      done()
     })
 
 
@@ -89,7 +92,7 @@ tests.forEach(test => {
       }
 
       try {
-        ct = JSON.parse(kruptein_tmp.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein_tmp.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -114,7 +117,7 @@ tests.forEach(test => {
       }
 
       try {
-        ct = JSON.parse(kruptein_tmp.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein_tmp.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -125,7 +128,7 @@ tests.forEach(test => {
 
     it('Encrypt', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -134,7 +137,7 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (kruptein.flag)
         expect(ct).to.have.property('at')
 
       done()
@@ -143,7 +146,7 @@ tests.forEach(test => {
 
     it('HMAC Validation', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -152,7 +155,7 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (kruptein.flag)
         expect(ct).to.have.property('at')
 
       ct.hmac = 'funky chicken'
@@ -160,6 +163,9 @@ tests.forEach(test => {
 
       try {
         pt = kruptein.get(ct)
+
+        if (kruptein.flag)
+          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
       } catch(err) {
         expect(err).to.equal('Encrypted session was tampered with!')
       }
@@ -170,7 +176,7 @@ tests.forEach(test => {
 
     it('Authentication Tag Validation', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -179,12 +185,12 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (!test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (!kruptein.flag)
         done()
 
       expect(ct).to.have.property('at')
 
-      ct.at = 'funky chicken'
+      ct.at = crypto.randomBytes(16)
       ct = JSON.stringify(ct)
 
       try {
@@ -196,10 +202,10 @@ tests.forEach(test => {
       done()
     })
 
-/*
+
     it('Authentication Tag Validation (option)', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -208,7 +214,7 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (!test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (!kruptein.flag)
         done()
 
       expect(ct).to.have.property('at')
@@ -219,10 +225,8 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        expect(err).to.be.null
+        expect(err).to.match(/Unsupported state or unable to authenticate data/)
       }
-
-      expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
 
       done()
     })
@@ -230,7 +234,7 @@ tests.forEach(test => {
 
     it('Additional Authentication Data Validation', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -239,12 +243,12 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (!test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (!kruptein.flag)
         done()
 
       expect(ct).to.have.property('at')
 
-      ct.aad = 'funky chicken'
+      ct.aad = crypto.randomBytes(16)
       ct = JSON.stringify(ct)
 
       try {
@@ -259,7 +263,7 @@ tests.forEach(test => {
 
     it('Additional Authentication Data Validation (option)', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -271,7 +275,7 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (!test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (!kruptein.flag)
         done()
 
       expect(ct).to.have.property('at')
@@ -282,10 +286,8 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        expect(err).to.be.null
+        expect(err).to.match(/Unsupported state or unable to authenticate data/)
       }
-
-      expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
 
       done()
     })
@@ -293,7 +295,7 @@ tests.forEach(test => {
 
     it('Decrypt', done => {
       try {
-        ct = JSON.parse(kruptein.set('123, easy as ABC. ABC, easy as 123'))
+        ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -302,21 +304,18 @@ tests.forEach(test => {
       expect(ct).to.have.property('iv')
       expect(ct).to.have.property('hmac')
 
-      if (test.options.algorithm.match(/ccm|gcm|ocb/))
+      if (kruptein.flag)
         expect(ct).to.have.property('at')
 
       try {
-        pt = kruptein.get(JSON.stringify(ct))
+        pt = kruptein.get(JSON.stringify(ct)).replace(/"/g, "")
       } catch(err) {
         expect(err).to.be.null
       }
 
-      expect(pt).to.match(/123, easy as ABC. ABC, easy as 123/)
+      expect(pt).to.equal(plaintext)
 
       done()
     })
-*/
   })
 })
-
-// fin
