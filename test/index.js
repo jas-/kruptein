@@ -173,7 +173,7 @@ tests.forEach(test => {
         pt = kruptein.get(ct)
 
         if (kruptein.flag) {
-          if (version >= 10) {
+          if (version >= 8) {
             expect(pt).to.match(/Unsupported state or unable to authenticate data/)
           } else {
             expect(pt).to.match(/invalid key length/)
@@ -209,7 +209,7 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct)
       } catch(err) {
-        if (version >= 10) {
+        if (version >= 8) {
           expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
           expect(err).to.match(/invalid key length/)
@@ -242,7 +242,7 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        if (version >= 10) {
+        if (version >= 8) {
           expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
           expect(err).to.match(/invalid key length/)
@@ -275,7 +275,7 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct)
       } catch(err) {
-        if (version >= 10) {
+        if (version >= 8) {
           expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
           expect(err).to.match(/invalid key length/)
@@ -311,7 +311,7 @@ tests.forEach(test => {
       try {
         pt = kruptein.get(ct, opts)
       } catch(err) {
-        if (version >= 10) {
+        if (version >= 8) {
           expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
           expect(err).to.match(/invalid key length/)
