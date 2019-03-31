@@ -39,8 +39,7 @@ ciphers.forEach(cipher => {
             'algorithm': cipher,
             'hashing': hash,
             'encodeas': encode,
-            'secret': 'squirrel',
-            'debug': false
+            'secret': 'squirrel'
           }
         }
       )
@@ -62,15 +61,23 @@ tests.forEach(test => {
 
 
     it('Missing Secret', done => {
-      let kruptein_copy = require('../lib/kruptein.js')
+      let kruptein_copy = require('../lib/kruptein.js'),
+        tmp
 
       test.options.secret = ''
 
+      tmp = kruptein_copy.init(test.options)
+
       try {
-        let tmp = kruptein_copy.init(test.options)
-        expect(tmp).to.throw("Must supply a secret!")
+        ct = kruptein_copy.set(plaintext)
       } catch(err) {
-        expect(err).to.be.null
+        expect(err).to.throw("Must supply a secret!")
+      }
+
+      try {
+        pt = kruptein_copy.get(ct)
+      } catch(err) {
+        expect(err).to.throw("Must supply a secret!")
       }
 
       done()
@@ -236,9 +243,9 @@ tests.forEach(test => {
         pt = kruptein.get(ct, opts)
       } catch(err) {
         if (version >= 10) {
-          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+          expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
-          expect(pt).to.match(/invalid key length/)
+          expect(err).to.match(/invalid key length/)
         }
       }
 
@@ -269,9 +276,9 @@ tests.forEach(test => {
         pt = kruptein.get(ct)
       } catch(err) {
         if (version >= 10) {
-          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+          expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
-          expect(pt).to.match(/invalid key length/)
+          expect(err).to.match(/invalid key length/)
         }
       }
 
@@ -305,9 +312,9 @@ tests.forEach(test => {
         pt = kruptein.get(ct, opts)
       } catch(err) {
         if (version >= 10) {
-          expect(pt).to.match(/Unsupported state or unable to authenticate data/)
+          expect(err).to.match(/Unsupported state or unable to authenticate data/)
         } else {
-          expect(pt).to.match(/invalid key length/)
+          expect(err).to.match(/invalid key length/)
         }
       }
 
