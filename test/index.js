@@ -11,8 +11,7 @@ let hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     encoding = ['binary'],
     tests = [],
-    plaintext = "123, easy as ABC. ABC, easy as 123",
-    version = process.version.replace(/^v/, "").split(".", 1)[0]
+    plaintext = "123, easy as ABC. ABC, easy as 123"
 
 
 // Filter getCiphers()
