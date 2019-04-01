@@ -60,12 +60,11 @@ tests.forEach(test => {
 
 
     it('Missing Secret', done => {
-      let kruptein_copy = require('../lib/kruptein.js'),
-        tmp
+      let kruptein_copy = require('../lib/kruptein.js')
 
       test.options.secret = ''
 
-      tmp = kruptein_copy.init(test.options)
+      kruptein_copy.init(test.options)
 
       try {
         ct = kruptein_copy.set(plaintext)

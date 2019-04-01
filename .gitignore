@@ -5,3 +5,4 @@ src-es5
 *.log
 .nyc_output/
 package-lock.json
+.c9/

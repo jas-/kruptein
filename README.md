@@ -38,7 +38,7 @@ See below for usage.
 
 
 ### set ###
-To create new ciphertext; `.set(plaintext, [additional authentication data]`
+To create new ciphertext; `.set(plaintext, [additional authentication data])`
 
 
 ```javascript
@@ -52,7 +52,7 @@ let ciphertext = kruptein.set('Operation mincemeat was an example of deception')
 ```
 
 ### get ###
-To retrieve plaintext; `.get(ciphertext, [{at: authentication tag, aad: additional authentication data}]`
+To retrieve plaintext; `.get(ciphertext, [{at: auth_tag, aad: aad}])`
 
 ```javascript
 const kruptein = require('kruptein');

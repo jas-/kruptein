@@ -8,3 +8,9 @@ examples/
 support/
 test/
 coverage/
+
+.c9/
+.git/
+.travis.yml
+coverage.lcov
+.nyc_output/

@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "encryption",
@@ -34,8 +34,5 @@
   },
   "xo": {
     "space": 2
-  },
-  "dependencies": {
-    "mocha-each": "^1.2.0"
   }
 }
