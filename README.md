@@ -15,8 +15,8 @@ To install `npm install kruptein`
 
 
 ## methods ##
-* `get`    Create ciphertext from plaintext
-* `set`    Create plaintext from ciphertext
+* `.set(plaintext, [aad])` - Create plaintext from ciphertext
+* `.get(ciphertext, [{at: auth_tag, aad: aad}])` - Create ciphertext from plaintext
 
 
 ## options ##
@@ -26,7 +26,7 @@ To install `npm install kruptein`
 * `encodeas` (Optional) Output encoding. Currently only supports `binary`.
 * `key_size` (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 * `iv_size` (Optional) IV size bytes. Default: `16`.
-* `at_size` (Optional) Authentication tag size. Applicable to `ccm`, `gcm` & `ocb` cipher modes. Default: `128`.
+* `at_size` (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
 
 ## tests ##
@@ -34,32 +34,32 @@ To test `npm test`
 
 
 ## usage ##
-See below for usage.
+When selecting an algorithm from `crypto.getCiphers()` the
+`iv` and `key_size` values are calculated auto-magically to make implementation 
+easy. You can always define your own if the defaults per algorithm and mode
+isn't what you would like; see the `options` section above.
+
+See below for usage examples.
 
 
 ### set ###
-To create new ciphertext; `.set(plaintext, [additional authentication data])`
-
+To create new ciphertext.
 
 ```javascript
 const kruptein = require('kruptein');
 
-const options = {
-  secret: 'squirrel'
-}
+kruptein.init({secret: 'squirrel'});
 
 let ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
 ### get ###
-To retrieve plaintext; `.get(ciphertext, [{at: auth_tag, aad: aad}])`
+To retrieve plaintext; 
 
 ```javascript
 const kruptein = require('kruptein');
 
-const options = {
-  secret: 'squirrel'
-}
+kruptein.init({secret: 'squirrel'});
 
 let plaintext = kruptein.get(ciphertext);
 ```
