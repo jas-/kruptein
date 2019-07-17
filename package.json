@@ -31,9 +31,7 @@
     "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "nyc mocha"
   },
-  {
-    "engines": {
-      "node": "^6 || ^8 || ^10 || ^12"
-    }
+  "engines": {
+    "node": "^6 || ^8 || ^10 || ^12"
   }
 }
