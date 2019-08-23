@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "encryption",
@@ -27,7 +27,6 @@
     "nyc": "^14.1.1"
   },
   "scripts": {
-    "lint": "xo src",
     "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "nyc mocha"
   },
