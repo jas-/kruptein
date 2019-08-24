@@ -23,16 +23,14 @@
   "devDependencies": {
     "codecov": "^3.5.0",
     "expect.js": "^0.3.1",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
-    "xo": "^0.24.0"
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1"
   },
   "scripts": {
-    "lint": "xo src",
     "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "nyc mocha"
   },
-  "xo": {
-    "space": 2
+  "engines": {
+    "node": "^6 || ^8 || ^10 || ^12"
   }
 }
