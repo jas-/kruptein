@@ -132,7 +132,38 @@ tests.forEach(test => {
     })
 
 
-    it('Encrypt', done => {
+    it('Key Derivation', done => {
+      let kruptein_copy = require('../lib/kruptein.js')
+
+      let opts = {
+        hashing: 'w00t'
+      }
+
+      try {
+        kruptein_copy.init(opts)
+      } catch(err) {
+        expect(err).to.match(/Digest method not supported|invalid key length/)
+      }
+
+      done()
+    })
+
+
+    it('Digest Validation', done => {
+      let kruptein_copy = require('../lib/kruptein.js')
+
+      try {
+        kruptein_copy._digest(test.options.secret, plaintext,
+                              'w00t', test.options.encodeas)
+      } catch(err) {
+        expect(err).to.match(/Unknown message digest/)
+      }
+
+      done()
+    })
+
+
+    it('Encrypt Validation', done => {
       try {
         ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
@@ -300,7 +331,7 @@ tests.forEach(test => {
     })
 
 
-    it('Decrypt', done => {
+    it('Decrypt Validation', done => {
       try {
         ct = JSON.parse(kruptein.set(plaintext))
       } catch(err) {
