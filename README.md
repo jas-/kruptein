@@ -43,24 +43,28 @@ isn't what you would like; see the `options` section above.
 To create new ciphertext.
 
 ```javascript
-const kruptein = require('kruptein');
+let opts = {
+  secret: 'squirrel'
+}, ciphertext;
 
-kruptein.init({secret: 'squirrel'});
+const kruptein = require('kruptein')(opts);
 
-let ciphertext = kruptein.set('Operation mincemeat was an example of deception');
+ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
 ### set using authentication data ###
 To create new ciphertext providing custom 'additional authentication data'.
 
 ```javascript
-const kruptein = require('kruptein');
+let opts = {
+  secret: 'squirrel'
+}, ciphertext;
 
-kruptein.init({secret: 'squirrel'});
+const kruptein = require('kruptein')(opts);
 
 let aad = func_to_generate_aad();
 
-let ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
+ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
 ```
 
 
@@ -68,37 +72,43 @@ let ciphertext = kruptein.set('Operation mincemeat was an example of deception',
 To retrieve plaintext; 
 
 ```javascript
-const kruptein = require('kruptein');
+let opts = {
+  secret: 'squirrel'
+}, ciphertext;
 
-kruptein.init({secret: 'squirrel'});
+const kruptein = require('kruptein')(opts);
 
-let plaintext = kruptein.get(ciphertext);
+plaintext = kruptein.get(ciphertext);
 ```
 
 ### get using authentication tag ###
 To retrieve plaintext using an external authentication tag
 
 ```javascript
-const kruptein = require('kruptein');
+let opts = {
+  secret: 'squirrel'
+}, ciphertext;
 
-kruptein.init({secret: 'squirrel'});
+const kruptein = require('kruptein')(opts);
 
 let at = func_to_provide_authentication_tag(ciphertext);
 
-let plaintext = kruptein.get(ciphertext, at);
+plaintext = kruptein.get(ciphertext, at);
 ```
 
 ### get using authentication data ###
 To retrieve plaintext using an external authentication tag
 
 ```javascript
-const kruptein = require('kruptein');
+let opts = {
+  secret: 'squirrel'
+}, ciphertext;
 
-kruptein.init({secret: 'squirrel'});
+const kruptein = require('kruptein')(opts);
 
 let aad = func_to_provide_authentication_data();
 
-let plaintext = kruptein.get(ciphertext, aad);
+plaintext = kruptein.get(ciphertext, aad);
 ```
 
 

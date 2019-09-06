@@ -3,11 +3,10 @@
 // Dependencies
 const crypto = require('crypto')
 const expect = require('expect.js')
-const kruptein = require('../lib/kruptein.js')
 
 
 // Inits
-let hmac, ciphers = [], hashes = [],
+let kruptein, hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     encoding = ['binary'],
     tests = [],
@@ -54,17 +53,15 @@ tests.forEach(test => {
 
     // Init kruptein with the test options
     beforeEach(done => {
-      kruptein.init(test.options)
+      kruptein = require('../index.js')(test.options)
       done()
     })
 
 
     it('Missing Secret', done => {
-      let kruptein_copy = require('../lib/kruptein.js')
-
       test.options.secret = ''
 
-      kruptein_copy.init(test.options)
+      let kruptein_copy = require('../index.js')(test.options)
 
       try {
         ct = kruptein_copy.set(plaintext)
@@ -83,22 +80,20 @@ tests.forEach(test => {
 
 
     it('Invalid Key Size', done => {
-      let kruptein_tmp = require('../lib/kruptein.js')
-
       let opts = {
         key_size: 99999,
         secret: 'squirrel'
-      }
+      }, tmp
 
       try {
-        let tmp = kruptein_tmp.init(opts)
+        tmp = require('../index.js')(opts)
         expect(tmp).to.throw("Invalid key size!")
       } catch(err) {
         expect(err).to.be.null
       }
 
       try {
-        ct = JSON.parse(kruptein_tmp.set(plaintext))
+        ct = JSON.parse(tmp.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -108,22 +103,20 @@ tests.forEach(test => {
 
 
     it('Invalid IV Size', done => {
-      let kruptein_tmp = require('../lib/kruptein.js')
-
       let opts = {
         iv_size: 99999,
         secret: 'squirrel'
-      }
+      }, tmp
 
       try {
-        let tmp = kruptein_tmp.init(opts)
+        let tmp = require('../index.js')(opts)
         expect(tmp).to.throw("Invalid IV size!")
       } catch(err) {
         expect(err).to.be.null
       }
 
       try {
-        ct = JSON.parse(kruptein_tmp.set(plaintext))
+        ct = JSON.parse(tmp.set(plaintext))
       } catch(err) {
         expect(err).to.be.null
       }
@@ -133,14 +126,12 @@ tests.forEach(test => {
 
 
     it('Key Derivation', done => {
-      let kruptein_copy = require('../lib/kruptein.js')
-
       let opts = {
         hashing: 'w00t'
-      }
+      }, tmp
 
       try {
-        kruptein_copy.init(opts)
+        let kruptein_copy = require('../index.js')(opts)
       } catch(err) {
         expect(err).to.match(/Digest method not supported|invalid key length/)
       }
@@ -150,7 +141,7 @@ tests.forEach(test => {
 
 
     it('Digest Validation', done => {
-      let kruptein_copy = require('../lib/kruptein.js')
+      let kruptein_copy = require('../index.js')(test.options)
 
       try {
         kruptein_copy._digest(test.options.secret, plaintext,

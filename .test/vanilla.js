@@ -1,7 +1,6 @@
 'use strict'
 
 const crypto = require('crypto')
-const kruptein = require('../lib/kruptein.js')
 
 let hmac, ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
@@ -35,7 +34,7 @@ for (let cipher in ciphers) {
     for (let enc in encoding) {
       options.encodeas = encoding[enc]
 
-      kruptein.init(options)
+      let kruptein = require('../lib/kruptein.js')(options)
 
       console.log('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }')
       let ct, pt
