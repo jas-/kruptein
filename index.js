@@ -4,4 +4,4 @@
  * License: MIT
  */
 
-module.exports = require('./lib/kruptein.js');
+module.exports = require("./lib/kruptein.js");

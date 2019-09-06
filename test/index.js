@@ -17,13 +17,13 @@ let kruptein, hmac, ciphers = [], hashes = [],
 ciphers = crypto.getCiphers().filter(cipher => {
   if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm/))
     return cipher;
-})
+});
 
 // Filter getHashes()
 hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2|3|5]/i) && !hash.match(/rsa/i))
     return hash;
-})
+});
 
 
 // Build tests array"s
@@ -40,7 +40,7 @@ ciphers.forEach(cipher => {
             "secret": "squirrel"
           }
         }
-      )
+      );
     });
   });
 });
