@@ -39,8 +39,8 @@ When selecting an algorithm from `crypto.getCiphers()` the
 easy. You can always define your own if the defaults per algorithm and mode
 isn't what you would like; see the `options` section above.
 
-`set(plaintext)`
----
+`.set(plaintext)`
+-----------------
 To create new ciphertext.
 
 ```javascript
@@ -54,7 +54,7 @@ ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
 `.set(plaintext, [aad])`
------------------------------
+------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
 ```javascript
@@ -70,7 +70,7 @@ ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad
 ```
 
 `.get(ciphertext)`
----
+------------------
 To retrieve plaintext; 
 
 ```javascript
@@ -84,7 +84,7 @@ plaintext = kruptein.get(ciphertext);
 ```
 
 `.get(ciphertext, [{at: auth_tag])`
-----------------------------
+-----------------------------------
 To retrieve plaintext using an external authentication tag
 
 ```javascript
@@ -100,7 +100,7 @@ plaintext = kruptein.get(ciphertext, at);
 ```
 
 `.get(ciphertext, [{aad: aad}])`
------------------------------
+--------------------------------
 To retrieve plaintext using some optional additional authentication data
 
 ```javascript
