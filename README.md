@@ -15,18 +15,18 @@ To install `npm install kruptein`
 
 methods
 -------
-*  `.set(plaintext, [aad])` - Create plaintext from ciphertext
-*  `.get(ciphertext, [{at: auth_tag, aad: aad}])` - Create ciphertext from plaintext
+*  `.set(plaintext, [aad])`  Create plaintext from ciphertext
+*  `.get(ciphertext, [{at: auth_tag, aad: aad}])`  Create ciphertext from plaintext
 
 options
 -------
-*  `secret` - (Required) Ciphertext passphrase
-*  `algorithm` - (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-*  `hashing` - (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
-*  `encodeas` - (Optional) Output encoding. Currently only supports `binary`.
-*  `key_size` - (Optional) Key size bytes (should match block size of algorithm). Default: `32`
-*  `iv_size` - (Optional) IV size bytes. Default: `16`.
-*  `at_size` - (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
+*  `secret`  (Required) Ciphertext passphrase
+*  `algorithm`  (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
+*  `hashing`  (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
+*  `encodeas`  (Optional) Output encoding. Currently only supports `binary`.
+*  `key_size`  (Optional) Key size bytes (should match block size of algorithm). Default: `32`
+*  `iv_size`  (Optional) IV size bytes. Default: `16`.
+*  `at_size`  (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
 tests
 -----
@@ -149,11 +149,11 @@ Cryptography References
 -----------------------
 This module was developed to conform to the recommendations provided regarding algorithm type, mode, key size, iv size & implementation, digests, key derivation & management etc. For details on publications referenced see below:
 
-*  [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) - Block cipher modes of operation
-*  [NIST SP 800-57 P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf) - Recommendations for key management
-*  [NIST SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf) - Recommendation for Applications Using Approved Hash Algorithms
-*  [NIST SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) - Transitioning the Use of Cryptographic Algorithms and Key Lengths
-*  [NIST SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf) - Guideline for Using Cryptographic Standards in the Federal Government
+*  [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf)  Block cipher modes of operation
+*  [NIST SP 800-57 P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf)  Recommendations for key management
+*  [NIST SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf)  Recommendation for Applications Using Approved Hash Algorithms
+*  [NIST SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf)  Transitioning the Use of Cryptographic Algorithms and Key Lengths
+*  [NIST SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf)  Guideline for Using Cryptographic Standards in the Federal Government
 
 contributing
 ------------
