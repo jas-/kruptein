@@ -9,16 +9,16 @@ crypto; from `kruptein` to hide or conceal
 [![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=master)](https://travis-ci.org/jas-/kruptein)
 [![codecov](https://codecov.io/gh/jas-/kruptein/branch/master/graph/badge.svg)](https://codecov.io/gh/jas-/kruptein)
 
-install
+Install
 -------
 To install `npm install kruptein`
 
-methods
+Methods
 -------
 *   `.set(plaintext, [aad])`: Create plaintext from ciphertext
 *   `.get(ciphertext, [{at: auth_tag, aad: aad}])`: Create ciphertext from plaintext
 
-options
+Options
 -------
 *   `secret`: (Required) Ciphertext passphrase
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
@@ -28,18 +28,18 @@ options
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
-tests
+Tests
 -----
 To test `npm test`
 
-usage
+Usage
 -----
 When selecting an algorithm from `crypto.getCiphers()` the
 `iv` and `key_size` values are calculated auto-magically to make implementation 
 easy. You can always define your own if the defaults per algorithm and mode
 isn't what you would like; see the `options` section above.
 
-set
+.set(plaintext)
 ---
 To create new ciphertext.
 
@@ -53,7 +53,7 @@ const kruptein = require('kruptein')(opts);
 ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
-set using authentication data
+.set(plaintext, [aad])
 -----------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
@@ -69,7 +69,7 @@ let aad = func_to_generate_aad();
 ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
 ```
 
-get
+.get(ciphertext)
 ---
 To retrieve plaintext; 
 
@@ -83,7 +83,7 @@ const kruptein = require('kruptein')(opts);
 plaintext = kruptein.get(ciphertext);
 ```
 
-get using authentication tag
+.get(ciphertext, [{at: auth_tag])
 ----------------------------
 To retrieve plaintext using an external authentication tag
 
@@ -99,9 +99,9 @@ let at = func_to_provide_authentication_tag(ciphertext);
 plaintext = kruptein.get(ciphertext, at);
 ```
 
-get using authentication data
+.get(ciphertext, [{aad: aad}])
 -----------------------------
-To retrieve plaintext using an external authentication tag
+To retrieve plaintext using some optional additional authentication data
 
 ```javascript
 let opts = {
@@ -155,14 +155,14 @@ This module was developed to conform to the recommendations provided regarding a
 *   [NIST SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
 *   [NIST SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
 
-contributing
+Contributing
 ------------
 Contributions are welcome & appreciated!
 
 Refer to the [contributing document](https://github.com/jas-/kruptein/blob/master/CONTRIBUTING.md)
 to help facilitate pull requests.
 
-license
+License
 -------
 This software is licensed under the [MIT License](https://github.com/jas-/kruptein/blob/master/LICENSE).
 
