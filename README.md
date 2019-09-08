@@ -9,15 +9,12 @@ crypto; from `kruptein` to hide or conceal
 [![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=master)](https://travis-ci.org/jas-/kruptein)
 [![codecov](https://codecov.io/gh/jas-/kruptein/branch/master/graph/badge.svg)](https://codecov.io/gh/jas-/kruptein)
 
-
 ## install ##
 To install `npm install kruptein`
-
 
 ## methods ##
 * `.set(plaintext, [aad])` - Create plaintext from ciphertext
 * `.get(ciphertext, [{at: auth_tag, aad: aad}])` - Create ciphertext from plaintext
-
 
 ## options ##
 * `secret` (Required) Ciphertext passphrase
@@ -28,10 +25,8 @@ To install `npm install kruptein`
 * `iv_size` (Optional) IV size bytes. Default: `16`.
 * `at_size` (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
-
 ## tests ##
 To test `npm test`
-
 
 ## usage ##
 When selecting an algorithm from `crypto.getCiphers()` the
@@ -66,7 +61,6 @@ let aad = func_to_generate_aad();
 
 ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
 ```
-
 
 ### get ###
 To retrieve plaintext; 
@@ -111,7 +105,6 @@ let aad = func_to_provide_authentication_data();
 plaintext = kruptein.get(ciphertext, aad);
 ```
 
-
 ## output ##
 The object `.set()` creates takes the following format;
 
@@ -147,8 +140,6 @@ This module was developed to conform to the recommendations provided regarding a
 * [NIST SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf) - Recommendation for Applications Using Approved Hash Algorithms
 * [NIST SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf) - Transitioning the Use of Cryptographic Algorithms and Key Lengths
 * [NIST SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf) - Guideline for Using Cryptographic Standards in the Federal Government
-
-
 
 ## contributing ##
 Contributions are welcome & appreciated!
