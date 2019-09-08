@@ -39,7 +39,7 @@ When selecting an algorithm from `crypto.getCiphers()` the
 easy. You can always define your own if the defaults per algorithm and mode
 isn't what you would like; see the `options` section above.
 
-.set(plaintext)
+`set(plaintext)`
 ---
 To create new ciphertext.
 
@@ -53,7 +53,7 @@ const kruptein = require('kruptein')(opts);
 ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 ```
 
-.set(plaintext, [aad])
+`.set(plaintext, [aad])`
 -----------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
@@ -69,7 +69,7 @@ let aad = func_to_generate_aad();
 ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
 ```
 
-.get(ciphertext)
+`.get(ciphertext)`
 ---
 To retrieve plaintext; 
 
@@ -83,7 +83,7 @@ const kruptein = require('kruptein')(opts);
 plaintext = kruptein.get(ciphertext);
 ```
 
-.get(ciphertext, [{at: auth_tag])
+`.get(ciphertext, [{at: auth_tag])`
 ----------------------------
 To retrieve plaintext using an external authentication tag
 
@@ -99,7 +99,7 @@ let at = func_to_provide_authentication_tag(ciphertext);
 plaintext = kruptein.get(ciphertext, at);
 ```
 
-.get(ciphertext, [{aad: aad}])
+`.get(ciphertext, [{aad: aad}])`
 -----------------------------
 To retrieve plaintext using some optional additional authentication data
 
@@ -115,33 +115,33 @@ let aad = func_to_provide_authentication_data();
 plaintext = kruptein.get(ciphertext, aad);
 ```
 
-output
+Output
 ------
 The object `.set()` creates takes the following format;
 
-non authenticated ciphers
+Non-Authenticated Ciphers
 -------------------------
 For those ciphers that __DO NOT__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment) the following structure is returned.
 
 ```json
 {
-    'hmac': "<calculated hmac>",
-    'ct': "<binary format of resulting ciphertext>",
-    'iv': "<buffer format of generated/supplied iv>"
+  'hmac': "<calculated hmac>",
+  'ct': "<binary format of resulting ciphertext>",
+  'iv': "<buffer format of generated/supplied iv>"
 }
 ```
 
-authenticated ciphers
+Authenticated Ciphers
 ---------------------
 For those ciphers that __DO__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment) the following structure is returned.
 Important: Note that in the event additional authentication data (aad) is not provided a digest of the derived key & iv is used.
 ```json
 {
-    'hmac': "<calculated hmac>",
-    'ct': "<binary format of resulting ciphertext>",
-    'iv': "<buffer format of generated/supplied iv>",
-    'at': "<buffer format of generated authentication tag>",
-    'aad': "<buffer format of generated/supplied additional authentication data>"
+  'hmac': "<calculated hmac>",
+  'ct': "<binary format of resulting ciphertext>",
+  'iv': "<buffer format of generated/supplied iv>",
+  'at': "<buffer format of generated authentication tag>",
+  'aad': "<buffer format of generated/supplied additional authentication data>"
 }
 ```
 
