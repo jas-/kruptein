@@ -1,9 +1,12 @@
-# Contributing to kruptein
+Contributing to kruptein
+========================
 
-## Code Contributions
+Code Contributions
+------------------
 This document will guide you through the contribution process.
 
-### Step 1: Fork
+Step 1: Fork
+------------
 Fork the project [on GitHub](https://github.com/jas-/kruptein) and check out your
 copy locally.
 
@@ -16,11 +19,13 @@ $ git remote add upstream git://github.com/jas-/kruptein.git
 Keep your local fork update to date using the `upstream` branch indicated in 
 the above commands.
 
-#### Which branch?
+Choose branch
+-------------
 For developing new features and bug fixes, the `master` branch should be pulled
 and built upon.
 
-### Step 2: Branch
+Step 2: Branch
+--------------
 Create a feature branch and start hacking:
 
 ```text
@@ -30,7 +35,8 @@ $ git checkout -b my-feature-branch -t origin/master
 The branch name should be descriptive about the fixes/features it will
 address.
 
-### Step 3: Commit
+Step 3: Commit
+--------------
 Make sure git knows your name and email address:
 
 ```text
@@ -68,7 +74,8 @@ run `git shortlog` or `git log --oneline`.
 Check the output of `git log --oneline files_that_you_changed` to find out
 what subsystem (or subsystems) your changes touch.
 
-### Step 4: Rebase
+Step 4: Rebase
+--------------
 Use `git rebase` (not `git merge`) to sync your work from time to time (as
 mentioned in 'Step 1').
 
@@ -77,7 +84,8 @@ $ git fetch upstream
 $ git rebase upstream/master
 ```
 
-### Step 5: Test
+Step 5: Test
+------------
 Bug fixes and features **should come with tests**.  Add your tests in the
 test directory.  Look at other tests to see how they should be
 structured.
@@ -86,7 +94,8 @@ structured.
 $ npm test
 ```
 
-### Step 6: Push
+Step 6: Push
+------------
 ```text
 $ git push origin my-feature-branch
 ```
