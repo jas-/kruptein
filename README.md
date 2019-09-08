@@ -15,25 +15,25 @@ To install `npm install kruptein`
 
 methods
 -------
-* `.set(plaintext, [aad])`  Create plaintext from ciphertext
-* `.get(ciphertext, [{at: auth_tag, aad: aad}])`  Create ciphertext from plaintext
+*  `.set(plaintext, [aad])` - Create plaintext from ciphertext
+*  `.get(ciphertext, [{at: auth_tag, aad: aad}])` - Create ciphertext from plaintext
 
 options
 -------
-* `secret`  (Required) Ciphertext passphrase
-* `algorithm`  (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-* `hashing`  (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
-* `encodeas`  (Optional) Output encoding. Currently only supports `binary`.
-* `key_size`  (Optional) Key size bytes (should match block size of algorithm). Default: `32`
-* `iv_size`  (Optional) IV size bytes. Default: `16`.
-* `at_size`  (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
+*  `secret` - (Required) Ciphertext passphrase
+*  `algorithm` - (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
+*  `hashing` - (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
+*  `encodeas` - (Optional) Output encoding. Currently only supports `binary`.
+*  `key_size` - (Optional) Key size bytes (should match block size of algorithm). Default: `32`
+*  `iv_size` - (Optional) IV size bytes. Default: `16`.
+*  `at_size` - (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
 tests
 -----
 To test `npm test`
 
 usage
-=====
+-----
 When selecting an algorithm from `crypto.getCiphers()` the
 `iv` and `key_size` values are calculated auto-magically to make implementation 
 easy. You can always define your own if the defaults per algorithm and mode
@@ -146,7 +146,7 @@ Important: Note that in the event additional authentication data (aad) is not pr
 ```
 
 Cryptography References
-=======================
+-----------------------
 This module was developed to conform to the recommendations provided regarding algorithm type, mode, key size, iv size & implementation, digests, key derivation & management etc. For details on publications referenced see below:
 
 * [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) - Block cipher modes of operation
