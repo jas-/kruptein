@@ -1,5 +1,5 @@
-# kruptein
-
+kruptein
+========
 crypto; from `kruptein` to hide or conceal
 
 [![npm](https://img.shields.io/npm/v/kruptein.svg)](https://npmjs.com/package/kruptein)
@@ -9,14 +9,17 @@ crypto; from `kruptein` to hide or conceal
 [![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=master)](https://travis-ci.org/jas-/kruptein)
 [![codecov](https://codecov.io/gh/jas-/kruptein/branch/master/graph/badge.svg)](https://codecov.io/gh/jas-/kruptein)
 
-## install ##
+install
+-------
 To install `npm install kruptein`
 
-## methods ##
+methods
+-------
 * `.set(plaintext, [aad])` - Create plaintext from ciphertext
 * `.get(ciphertext, [{at: auth_tag, aad: aad}])` - Create ciphertext from plaintext
 
-## options ##
+options
+-------
 * `secret` (Required) Ciphertext passphrase
 * `algorithm` (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 * `hashing` (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
@@ -25,7 +28,8 @@ To install `npm install kruptein`
 * `iv_size` (Optional) IV size bytes. Default: `16`.
 * `at_size` (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 
-## tests ##
+tests
+-----
 To test `npm test`
 
 ## usage ##
