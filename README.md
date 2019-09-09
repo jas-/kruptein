@@ -30,18 +30,20 @@ Options
 
 Tests
 -----
-To test `npm test`
+To test use `npm test` or `node .test/vanilla.js`
 
 Usage
 -----
 When selecting an algorithm from `crypto.getCiphers()` the
 `iv` and `key_size` values are calculated auto-magically to make implementation 
-easy. You can always define your own if the defaults per algorithm and mode
-isn't what you would like; see the `options` section above.
+easy.
+
+You can always define your own if the defaults per algorithm and mode
+aren't what you would like; see the `options` section above.
 
 `.set(plaintext)`
 -----------------
-To create new ciphertext.
+To create a new ciphertext object.
 
 ```javascript
 let opts = {
@@ -76,7 +78,7 @@ To retrieve plaintext;
 ```javascript
 let opts = {
   secret: 'squirrel'
-}, ciphertext;
+}, ciphertext, plaintext;
 
 const kruptein = require('kruptein')(opts);
 
@@ -90,7 +92,7 @@ To retrieve plaintext using an external authentication tag
 ```javascript
 let opts = {
   secret: 'squirrel'
-}, ciphertext;
+}, ciphertext, plaintext;
 
 const kruptein = require('kruptein')(opts);
 
@@ -106,7 +108,7 @@ To retrieve plaintext using some optional additional authentication data
 ```javascript
 let opts = {
   secret: 'squirrel'
-}, ciphertext;
+}, ciphertext, plaintext;
 
 const kruptein = require('kruptein')(opts);
 
@@ -117,11 +119,12 @@ plaintext = kruptein.get(ciphertext, aad);
 
 Output
 ------
-The object `.set()` creates takes the following format;
+The `.set()` method creates the following object;
 
 Non-Authenticated Ciphers
 -------------------------
-For those ciphers that __DO NOT__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment) the following structure is returned.
+For those ciphers that __DO NOT__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
+the following structure is returned.
 
 ```json
 {
@@ -133,8 +136,12 @@ For those ciphers that __DO NOT__ support [authentication modes](https://csrc.ni
 
 Authenticated Ciphers
 ---------------------
-For those ciphers that __DO__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment) the following structure is returned.
-Important: Note that in the event additional authentication data (aad) is not provided a digest of the derived key & iv is used.
+For those ciphers that __DO__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
+the following structure is returned.
+
+__Important__: Note that in the event additional authentication data (aad) is
+not provided a digest of the derived key & iv is used.
+
 ```json
 {
   'hmac': "<calculated hmac>",
@@ -147,8 +154,11 @@ Important: Note that in the event additional authentication data (aad) is not pr
 
 Cryptography References
 -----------------------
-This module was developed to conform to the recommendations provided regarding algorithm type, mode, key size, iv size & implementation, digests, key derivation & management etc. For details on publications referenced see below:
+This module conforms to the NIST recommendations regarding algorithm type,
+mode, key size, iv size & implementation, digests, key derivation & management
+etc.
 
+References:
 *   [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [NIST SP 800-57 P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
 *   [NIST SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf): Recommendation for Applications Using Approved Hash Algorithms

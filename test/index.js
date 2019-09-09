@@ -21,7 +21,7 @@ ciphers = crypto.getCiphers().filter(cipher => {
 
 // Filter getHashes()
 hashes = crypto.getHashes().filter(hash => {
-  if (hash.match(/^sha[2|3|5]/i) && !hash.match(/rsa/i))
+  if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
 
@@ -109,7 +109,7 @@ tests.forEach(test => {
       }, tmp;
 
       try {
-        let tmp = require("../index.js")(opts);
+        tmp = require("../index.js")(opts);
         expect(tmp).to.throw("Invalid IV size!");
       } catch(err) {
         expect(err).to.be.null;
@@ -131,9 +131,9 @@ tests.forEach(test => {
       }, tmp;
 
       try {
-        let kruptein_copy = require("../index.js")(opts);
+        require("../index.js")(opts);
       } catch(err) {
-        expect(err).to.match(/Digest method not supported|invalid key length/);
+        expect(err).to.match(/Unable to generate key material/);
       }
 
       done();
@@ -147,7 +147,7 @@ tests.forEach(test => {
         kruptein_copy._digest(test.options.secret, plaintext,
                               "w00t", test.options.encodeas);
       } catch(err) {
-        expect(err).to.match(/Unknown message digest/);
+        expect(err).to.match(/Unable to generate digest/);
       }
 
       done();

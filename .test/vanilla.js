@@ -20,7 +20,7 @@ ciphers = crypto.getCiphers().filter(cipher => {
 
 // Filter getHashes()
 hashes = crypto.getHashes().filter(hash => {
-  if (hash.match(/^sha[2|3|5]/i) && !hash.match(/rsa/i))
+  if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash
 })
 
