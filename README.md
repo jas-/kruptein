@@ -15,18 +15,18 @@ To install `npm install kruptein`
 
 Methods
 -------
-*   `.set(plaintext, [aad])`: Create plaintext from ciphertext
-*   `.get(ciphertext, [{at: auth_tag, aad: aad}])`: Create ciphertext from plaintext
+*   `.set(secret, plaintext, [aad])`: Create plaintext from ciphertext
+*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}])`: Create ciphertext from plaintext
 
 Options
 -------
-*   `secret`: (Required) Ciphertext passphrase
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
 *   `encodeas`: (Optional) Output encoding. Currently only supports `binary`.
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
+*   `use_scrypt`: (Optional) The default key derivation uses PBKDF2 which conforms to [NIST SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf), if you wish to use scrypt to derive a key set to true.
 
 Tests
 -----
@@ -41,18 +41,15 @@ easy.
 You can always define your own if the defaults per algorithm and mode
 aren't what you would like; see the `options` section above.
 
-`.set(plaintext)`
+`.set(secret, plaintext)`
 -----------------
 To create a new ciphertext object.
 
 ```javascript
-let opts = {
-  secret: 'squirrel'
-}, ciphertext;
-
 const kruptein = require('kruptein')(opts);
+let ciphertext, secret = "squirrel";
 
-ciphertext = kruptein.set('Operation mincemeat was an example of deception');
+ciphertext = kruptein.set(secret, 'Operation mincemeat was an example of deception');
 ```
 
 `.set(plaintext, [aad])`
@@ -60,15 +57,12 @@ ciphertext = kruptein.set('Operation mincemeat was an example of deception');
 To create new ciphertext providing custom 'additional authentication data'.
 
 ```javascript
-let opts = {
-  secret: 'squirrel'
-}, ciphertext;
-
 const kruptein = require('kruptein')(opts);
+let ciphertext, secret = "squirrel";
 
 let aad = func_to_generate_aad();
 
-ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad);
+ciphertext = kruptein.set(secret, 'Operation mincemeat was an example of deception', aad);
 ```
 
 `.get(ciphertext)`
@@ -76,13 +70,10 @@ ciphertext = kruptein.set('Operation mincemeat was an example of deception', aad
 To retrieve plaintext; 
 
 ```javascript
-let opts = {
-  secret: 'squirrel'
-}, ciphertext, plaintext;
-
 const kruptein = require('kruptein')(opts);
+let ciphertext, plaintext, ciphertext, secret = "squirrel";
 
-plaintext = kruptein.get(ciphertext);
+plaintext = kruptein.get(secret, ciphertext);
 ```
 
 `.get(ciphertext, [{at: auth_tag])`
@@ -90,15 +81,12 @@ plaintext = kruptein.get(ciphertext);
 To retrieve plaintext using an external authentication tag
 
 ```javascript
-let opts = {
-  secret: 'squirrel'
-}, ciphertext, plaintext;
-
 const kruptein = require('kruptein')(opts);
+let ciphertext, plaintext, secret = "squirrel";
 
 let at = func_to_provide_authentication_tag(ciphertext);
 
-plaintext = kruptein.get(ciphertext, at);
+plaintext = kruptein.get(secret, ciphertext, at);
 ```
 
 `.get(ciphertext, [{aad: aad}])`
@@ -106,15 +94,12 @@ plaintext = kruptein.get(ciphertext, at);
 To retrieve plaintext using some optional additional authentication data
 
 ```javascript
-let opts = {
-  secret: 'squirrel'
-}, ciphertext, plaintext;
-
 const kruptein = require('kruptein')(opts);
+let ciphertext, plaintext, secret = "squirrel";
 
 let aad = func_to_provide_authentication_data();
 
-plaintext = kruptein.get(ciphertext, aad);
+plaintext = kruptein.get(secret, ciphertext, aad);
 ```
 
 Output
@@ -130,7 +115,8 @@ the following structure is returned.
 {
   'hmac': "<calculated hmac>",
   'ct': "<binary format of resulting ciphertext>",
-  'iv': "<buffer format of generated/supplied iv>"
+  'iv': "<buffer format of generated/supplied iv>",
+  'salt': "<buffer format of generated/supplied salt>"
 }
 ```
 
@@ -147,6 +133,7 @@ not provided a digest of the derived key & iv is used.
   'hmac': "<calculated hmac>",
   'ct': "<binary format of resulting ciphertext>",
   'iv': "<buffer format of generated/supplied iv>",
+  'salt': "<buffer format of generated/supplied salt>",
   'at': "<buffer format of generated authentication tag>",
   'aad': "<buffer format of generated/supplied additional authentication data>"
 }
@@ -159,11 +146,14 @@ mode, key size, iv size & implementation, digests, key derivation & management
 etc.
 
 References:
-*   [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
-*   [NIST SP 800-57 P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
-*   [NIST SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf): Recommendation for Applications Using Approved Hash Algorithms
-*   [NIST SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
-*   [NIST SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
+*   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
+*   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
+*   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
+*   [SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf): Recommendation for Applications Using Approved Hash Algorithms
+*   [SP 800-108](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-108.pdf): Recommendation for Key Derivation Using Pseudorandom Functions
+*   [SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
+*   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
+*   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
 
 Contributing
 ------------

@@ -6,10 +6,10 @@ const expect = require("expect.js");
 
 
 // Inits
-let kruptein, hmac, ciphers = [], hashes = [],
+let kruptein, hmac, secret = "squirrel",
+    ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
-    encoding = ["binary"],
-    tests = [],
+    tests = [], encoding = ["binary"],
     plaintext = "123, easy as ABC. ABC, easy as 123";
 
 
@@ -36,8 +36,7 @@ ciphers.forEach(cipher => {
           "options": {
             "algorithm": cipher,
             "hashing": hash,
-            "encodeas": encode,
-            "secret": "squirrel"
+            "encodeas": encode
           }
         }
       );
@@ -59,18 +58,8 @@ tests.forEach(test => {
 
 
     it("Missing Secret", done => {
-      test.options.secret = "";
-
-      let kruptein_copy = require("../index.js")(test.options);
-
       try {
-        ct = kruptein_copy.set(plaintext);
-      } catch(err) {
-        expect(err).to.throw("Must supply a secret!");
-      }
-
-      try {
-        pt = kruptein_copy.get(ct);
+        ct = kruptein.set(secret, plaintext);
       } catch(err) {
         expect(err).to.throw("Must supply a secret!");
       }
@@ -81,19 +70,12 @@ tests.forEach(test => {
 
     it("Invalid Key Size", done => {
       let opts = {
-        key_size: 99999,
-        secret: "squirrel"
+        key_size: 99999
       }, tmp;
 
       try {
         tmp = require("../index.js")(opts);
         expect(tmp).to.throw("Invalid key size!");
-      } catch(err) {
-        expect(err).to.be.null;
-      }
-
-      try {
-        ct = JSON.parse(tmp.set(plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -104,19 +86,12 @@ tests.forEach(test => {
 
     it("Invalid IV Size", done => {
       let opts = {
-        iv_size: 99999,
-        secret: "squirrel"
+        iv_size: 99999
       }, tmp;
 
       try {
         tmp = require("../index.js")(opts);
         expect(tmp).to.throw("Invalid IV size!");
-      } catch(err) {
-        expect(err).to.be.null;
-      }
-
-      try {
-        ct = JSON.parse(tmp.set(plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -132,6 +107,21 @@ tests.forEach(test => {
 
       try {
         require("../index.js")(opts);
+      } catch(err) {
+        expect(err).to.match(/Unable to generate key material/);
+      }
+
+      done();
+    });
+
+
+    it("Key Derivation (scrypt())", done => {
+      let opts = {
+        use_scrypt: true
+      }, tmp = require("../index.js")(opts);
+
+      try {
+        tmp._derive_key(secret);
       } catch(err) {
         expect(err).to.match(/Unable to generate key material/);
       }
@@ -156,7 +146,7 @@ tests.forEach(test => {
 
     it("Encrypt Validation", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -165,7 +155,7 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (kruptein.flag)
+      if (kruptein.aead_mode)
         expect(ct).to.have.property("at");
 
       done();
@@ -174,7 +164,7 @@ tests.forEach(test => {
 
     it("HMAC Validation", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -183,16 +173,16 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (kruptein.flag)
+      if (kruptein.aead_mode)
         expect(ct).to.have.property("at");
 
       ct.hmac = "funky chicken";
       ct = JSON.stringify(ct);
 
       try {
-        pt = kruptein.get(ct);
+        pt = kruptein.get(secret, ct);
 
-        if (kruptein.flag) {
+        if (kruptein.aead_mode) {
           expect(pt).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
         }
       } catch(err) {
@@ -205,7 +195,7 @@ tests.forEach(test => {
 
     it("Authentication Tag Validation", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -214,7 +204,7 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (!kruptein.flag)
+      if (!kruptein.aead_mode)
         done();
 
       expect(ct).to.have.property("at");
@@ -223,7 +213,7 @@ tests.forEach(test => {
       ct = JSON.stringify(ct);
 
       try {
-        pt = kruptein.get(ct);
+        pt = kruptein.get(secret, ct);
       } catch(err) {
         expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
       }
@@ -234,7 +224,7 @@ tests.forEach(test => {
 
     it("Authentication Tag Validation (option)", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -243,7 +233,7 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (!kruptein.flag)
+      if (!kruptein.aead_mode)
         done();
 
       expect(ct).to.have.property("at");
@@ -252,7 +242,7 @@ tests.forEach(test => {
       ct = JSON.stringify(ct);
 
       try {
-        pt = kruptein.get(ct, opts);
+        pt = kruptein.get(secret, ct, opts);
       } catch(err) {
         expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
       }
@@ -263,7 +253,7 @@ tests.forEach(test => {
 
     it("Additional Authentication Data Validation", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -272,7 +262,7 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (!kruptein.flag)
+      if (!kruptein.aead_mode)
         done();
 
       expect(ct).to.have.property("at");
@@ -281,7 +271,7 @@ tests.forEach(test => {
       ct = JSON.stringify(ct);
 
       try {
-        pt = kruptein.get(ct);
+        pt = kruptein.get(secret, ct);
       } catch(err) {
         expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
       }
@@ -292,7 +282,7 @@ tests.forEach(test => {
 
     it("Additional Authentication Data Validation (option)", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -304,7 +294,7 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (!kruptein.flag)
+      if (!kruptein.aead_mode)
         done();
 
       expect(ct).to.have.property("at");
@@ -313,7 +303,7 @@ tests.forEach(test => {
       ct = JSON.stringify(ct);
 
       try {
-        pt = kruptein.get(ct, opts);
+        pt = kruptein.get(secret, ct, opts);
       } catch(err) {
         expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
       }
@@ -324,7 +314,7 @@ tests.forEach(test => {
 
     it("Decrypt Validation", done => {
       try {
-        ct = JSON.parse(kruptein.set(plaintext));
+        ct = JSON.parse(kruptein.set(secret, plaintext));
       } catch(err) {
         expect(err).to.be.null;
       }
@@ -333,11 +323,11 @@ tests.forEach(test => {
       expect(ct).to.have.property("iv");
       expect(ct).to.have.property("hmac");
 
-      if (kruptein.flag)
+      if (kruptein.aead_mode)
         expect(ct).to.have.property("at");
 
       try {
-        pt = kruptein.get(JSON.stringify(ct)).replace(/"/g, "");
+        pt = kruptein.get(secret, JSON.stringify(ct)).replace(/"/g, "");
       } catch(err) {
         expect(err).to.be.null;
       }
