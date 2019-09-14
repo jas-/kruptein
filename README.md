@@ -26,7 +26,7 @@ Options
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
-*   `use_scrypt`: (Optional) The default key derivation uses PBKDF2 which conforms to [NIST SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf), if you wish to use scrypt to derive a key set to true.
+*   `use_scrypt`: (Optional) Use `.scrypt()`` to derive a key. Default: `.pbkdf2()`.
 
 Tests
 -----

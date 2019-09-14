@@ -115,7 +115,7 @@ tests.forEach(test => {
     });
 
 
-    it("Key Derivation (scrypt())", done => {
+    it("Key Derivation (.scrypt())", done => {
       let opts = {
         use_scrypt: true
       }, tmp = require("../index.js")(opts);
