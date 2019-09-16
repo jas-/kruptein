@@ -141,11 +141,12 @@ not provided a digest of the derived key & iv is used.
 
 Cryptography References
 -----------------------
-This module conforms to the NIST recommendations regarding algorithm type,
+This module conforms to RFC and NIST recommendations regarding algorithm type,
 mode, key size, iv size & implementation, digests, key derivation & management
 etc.
 
 References:
+*   [RFC 4806](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
 *   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
