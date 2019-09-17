@@ -28,7 +28,7 @@
   },
   "scripts": {
     "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "test": "nyc mocha test/scrypt.js"
+    "test": "nyc mocha test/*.js"
   },
   "engines": {
     "node": "^6 || ^8 || ^10 || ^12"
