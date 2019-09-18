@@ -116,8 +116,13 @@ tests.forEach(test => {
         }, tmp = require("../index.js")(opts);
 
         tmp._derive_key({secret: secret, opts: scrypt_limits}, (err, res) => {
-          expect(err).to.equal("Unable to derive key!");  
-          expect(res).to.equal.null;
+          if (typeof crypto.scryptSync === "function") {
+            expect(err).to.equal("Unable to derive key!");
+            expect(res).to.equal.null;
+          } else {
+            expect(err).to.equal.null;
+            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+          }
         });
 
         done();
@@ -157,19 +162,24 @@ tests.forEach(test => {
 
 
       it("Validate Ciphertext (AAD): ._encrypt()", done => {
-        let iv = kruptein._iv(kruptein._iv_size);
+        if (!kruptein._aead_mode)
+          return done();
+
+        let iv = kruptein._iv(kruptein._iv_size),
+            aad_size = (1 << (8 * (15 - iv.byteLength))) - 1;
 
         kruptein._derive_key(secret, (err, res) => {
           expect(err).to.be.null;
 
           kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
-                            kruptein.encodeas, iv, plaintext, (err, res) => {
+                            kruptein.encodeas, iv,
+                            {aad: plaintext, size: aad_size}, (err, res) => {
+                              console.log(err)
+                              console.log(res)
                               expect(err).to.be.null;
 
                               expect(res).to.have.property("ct");
-
-                              if (kruptein._aead_mode)
-                                expect(res).to.have.property("at");
+                              expect(res).to.have.property("at");
                             });
         });
 
