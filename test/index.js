@@ -57,7 +57,7 @@ tests.forEach(test => {
     });
 
 
-    describe("Private Function Tests", () => {
+    describe("Private Functions", () => {
 
       it("Validate IV Size: ._iv()", done => {
         let tmp_iv = kruptein._iv(kruptein._iv_size);
@@ -83,9 +83,9 @@ tests.forEach(test => {
         let opts = {
           use_scrypt: true
         }, tmp = require("../index.js")(opts);
+          tmp._derive_key(secret, (err, res) => {
 
-        tmp._derive_key(secret, (err, res) => {
-          expect(err).to.be.null;
+        expect(err).to.be.null;
 
           expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
         });
@@ -174,8 +174,6 @@ tests.forEach(test => {
           kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
                             kruptein.encodeas, iv,
                             {aad: plaintext, size: aad_size}, (err, res) => {
-                              console.log(err)
-                              console.log(res)
                               expect(err).to.be.null;
 
                               expect(res).to.have.property("ct");
