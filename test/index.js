@@ -15,7 +15,7 @@ let kruptein, hmac, secret = "squirrel",
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm/))
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap/))
     return cipher;
 });
 

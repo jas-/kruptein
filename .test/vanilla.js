@@ -8,13 +8,14 @@ let hmac, secret = "squirrel", kruptein,
     encoding = ['binary'];
 
 const options = {
-  use_scrypt: true
+  use_scrypt: true,
+  debug: true
 };
 
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm/))
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap/))
     return cipher;
 })
 

@@ -27,6 +27,7 @@ Options
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default: `.pbkdf2()`.
+*   `debug`: (Optional) Provides additional information about internal operations.
 
 Tests
 -----
