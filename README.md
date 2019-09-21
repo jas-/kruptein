@@ -47,10 +47,10 @@ Create ciphertext from plaintext; default example
 To create a new ciphertext object.
 
 ```javascript
-const kruptein = require('kruptein')(opts);
+const kruptein = require("kruptein")(opts);
 let ciphertext, secret = "squirrel";
 
-kruptein.set(secret, 'Operation mincemeat was an example of deception', (err, ct) => {
+kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct) => {
   if (err)
     throw err;
     
@@ -58,31 +58,41 @@ kruptein.set(secret, 'Operation mincemeat was an example of deception', (err, ct
 });
 ```
 
-Create ciphertext from plaintext; using AEAD class of ciphers with a custom AAD
+Create ciphertext from plaintext; assumes AEAD class of ciphers with a custom AAD
 ------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
 ```javascript
-const kruptein = require('kruptein')(opts);
+const kruptein = require("kruptein")(opts);
 let ciphertext, secret = "squirrel";
 
 let aad = func_to_generate_aad();
 
-ciphertext = kruptein.set(secret, 'Operation mincemeat was an example of deception', aad);
+kruptein.set(secret, "Operation mincemeat was an example of deception", aad, (err, ct) => {
+  if (err)
+    throw err;
+  
+  console.log(ct);
+});
 ```
 
-`.get(ciphertext)`
+Get plaintext from ciphertext; default example
 ------------------
 To retrieve plaintext; 
 
 ```javascript
-const kruptein = require('kruptein')(opts);
+const kruptein = require("kruptein")(opts);
 let ciphertext, plaintext, ciphertext, secret = "squirrel";
 
-plaintext = kruptein.get(secret, ciphertext);
+kruptein.get(secret, ciphertext, (err, pt) => {
+  if (err)
+    throw err;
+
+  console.log(pt);
+});
 ```
 
-`.get(ciphertext, [{at: auth_tag])`
+Get plaintext from ciphertext; assumes AEAD class of ciphers with a custom AT
 -----------------------------------
 To retrieve plaintext using an external authentication tag
 
@@ -92,10 +102,15 @@ let ciphertext, plaintext, secret = "squirrel";
 
 let at = func_to_provide_authentication_tag(ciphertext);
 
-plaintext = kruptein.get(secret, ciphertext, at);
+kruptein.get(secret, ciphertext, at, (err, pt) => {
+  if (err)
+    throw err;
+  
+  console.log(pt);
+});
 ```
 
-`.get(ciphertext, [{aad: aad}])`
+Get plaintext from ciphertext; assumes AEAD class of ciphers with a custom AAD
 --------------------------------
 To retrieve plaintext using some optional additional authentication data
 
@@ -105,7 +120,12 @@ let ciphertext, plaintext, secret = "squirrel";
 
 let aad = func_to_provide_authentication_data();
 
-plaintext = kruptein.get(secret, ciphertext, aad);
+kruptein.get(secret, ciphertext, aad, (err, pt) => {
+  if (err)
+    throw err;
+
+  console.log(pt);
+});
 ```
 
 Output
