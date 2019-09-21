@@ -174,9 +174,6 @@ tests.forEach(test => {
 
           kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
                             kruptein.encodeas, iv, aad, (err, res) => {
-console.log("Results:")
-console.log(err)
-console.log(res)
                               expect(err).to.be.null;
 
                               expect(res).to.have.property("ct");
