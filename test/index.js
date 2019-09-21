@@ -15,7 +15,7 @@ let kruptein, hmac, secret = "squirrel",
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap/))
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
     return cipher;
 });
 
@@ -36,7 +36,8 @@ ciphers.forEach(cipher => {
           "options": {
             "algorithm": cipher,
             "hashing": hash,
-            "encodeas": encode
+            "encodeas": encode,
+            //"debug": true
           }
         }
       );
@@ -166,18 +167,22 @@ tests.forEach(test => {
           return done();
 
         let iv = kruptein._iv(kruptein._iv_size),
-            aad_size = (1 << (8 * (15 - iv.byteLength))) - 1;
+            aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
 
         kruptein._derive_key(secret, (err, res) => {
           expect(err).to.be.null;
 
           kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
-                            kruptein.encodeas, iv,
-                            {aad: plaintext, size: aad_size}, (err, res) => {
+                            kruptein.encodeas, iv, aad, (err, res) => {
+console.log("Results:")
+console.log(err)
+console.log(res)
                               expect(err).to.be.null;
 
                               expect(res).to.have.property("ct");
-                              expect(res).to.have.property("at");
+
+                              if (kruptein._aead_mode)
+                                expect(res).to.have.property("at");
                             });
         });
 

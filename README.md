@@ -42,7 +42,7 @@ easy.
 You can always define your own if the defaults per algorithm and mode
 aren't what you would like; see the `options` section above.
 
-`.set(secret, plaintext)`
+Create ciphertext from plaintext; default example
 -----------------
 To create a new ciphertext object.
 
@@ -50,10 +50,15 @@ To create a new ciphertext object.
 const kruptein = require('kruptein')(opts);
 let ciphertext, secret = "squirrel";
 
-ciphertext = kruptein.set(secret, 'Operation mincemeat was an example of deception');
+kruptein.set(secret, 'Operation mincemeat was an example of deception', (err, ct) => {
+  if (err)
+    throw err;
+    
+  console.log(ct);
+});
 ```
 
-`.set(plaintext, [aad])`
+Create ciphertext from plaintext; using AEAD class of ciphers with a custom AAD
 ------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
