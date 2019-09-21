@@ -148,6 +148,7 @@ tests.forEach(test => {
 
 
       describe("Encryption Tests", () => {
+
         it("Validate Ciphertext: ._encrypt()", done => {
           let iv = kruptein._iv(kruptein._iv_size);
 
@@ -175,6 +176,56 @@ tests.forEach(test => {
 
           let iv = kruptein._iv(kruptein._iv_size),
               aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, aad, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode)
+                                  expect(res).to.have.property("at");
+                              });
+          });
+
+          done();
+        });
+
+
+        it("Validate Ciphertext (scrypt): ._encrypt()", done => {
+          let iv = kruptein._iv(kruptein._iv_size);
+
+          kruptein._use_scrypt = true;
+
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode)
+                                  expect(res).to.have.property("at");
+                              });
+          });
+
+          done();
+        });
+
+
+        it("Validate Ciphertext (scrypt) (AAD): ._encrypt()", done => {
+          if (!kruptein._aead_mode)
+            return done();
+
+          let iv = kruptein._iv(kruptein._iv_size),
+              aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+
+          kruptein._use_scrypt = true;
 
           kruptein._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
@@ -235,6 +286,78 @@ tests.forEach(test => {
 
           let key, iv = kruptein._iv(kruptein._iv_size),
               aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            key = res.key;
+
+            kruptein._encrypt(key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, aad, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode) {
+                                  expect(res).to.have.property("at");
+                                }
+
+                                kruptein._decrypt(key, res.ct, kruptein.algorithm,
+                                                  kruptein.encodeas, iv,
+                                                  res.at, aad, (err, res) => {
+                                  expect(err).to.be.null;
+
+                                  expect(res).to.equal(plaintext);
+                                });
+            });
+          });
+
+          done();
+        });
+
+
+        it("Validate Plaintext (scrypt): ._decrypt()", done => {
+          let key, iv = kruptein._iv(kruptein._iv_size);
+
+          kruptein._use_scrypt = true;
+
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            key = res.key;
+
+            kruptein._encrypt(key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode) {
+                                  expect(res).to.have.property("at");
+                                }
+
+                                kruptein._decrypt(key, res.ct, kruptein.algorithm,
+                                                  kruptein.encodeas, iv,
+                                                  res.at, (err, res) => {
+                                  expect(err).to.be.null;
+
+                                  expect(res).to.equal(plaintext);
+                                });
+            });
+          });
+
+          done();
+        });
+
+
+        it("Validate Plaintext (scrypt) (AAD): ._decrypt()", done => {
+          if (!kruptein._aead_mode)
+            return done();
+
+          let key, iv = kruptein._iv(kruptein._iv_size),
+              aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+
+          kruptein._use_scrypt = true;
 
           kruptein._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
