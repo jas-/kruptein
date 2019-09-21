@@ -60,153 +60,266 @@ tests.forEach(test => {
 
     describe("Private Functions", () => {
 
-      it("Validate IV Size: ._iv()", done => {
-        let tmp_iv = kruptein._iv(kruptein._iv_size);
+      describe("Validator Tests", () => {
 
-        expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
+        it("Validate IV Size: ._iv()", done => {
+          let tmp_iv = kruptein._iv(kruptein._iv_size);
 
-        done();
-      });
+          expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
 
-
-      it("Validate Key Size: ._derive_key() => .pbkdf2()", done => {
-        kruptein._derive_key(secret, (err, res) => {
-          expect(err).to.be.null;
-
-          expect(Buffer.byteLength(res.key)).to.equal(kruptein._key_size);
+          done();
         });
 
-        done();
+
+        it("Validate Key Size: ._derive_key() => .pbkdf2()", done => {
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            expect(Buffer.byteLength(res.key)).to.equal(kruptein._key_size);
+          });
+
+          done();
+        });
+
+
+        it("Validate Key Size: ._derive_key() => .scrypt()", done => {
+          let opts = {
+            use_scrypt: true
+          }, tmp = require("../index.js")(opts);
+            tmp._derive_key(secret, (err, res) => {
+
+            expect(err).to.be.null;
+
+            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+          });
+
+          done();
+        });
       });
 
 
-      it("Validate Key Size: ._derive_key() => .scrypt()", done => {
-        let opts = {
-          use_scrypt: true
-        }, tmp = require("../index.js")(opts);
+      describe("Key Derivation Tests", () => {
+
+        it("Key Derivation: ._derive_key() => .pbkdf2()", done => {
+          let opts = {
+            hashing: "w00t"
+          }, tmp = require("../index.js")(opts);
+
           tmp._derive_key(secret, (err, res) => {
-
-        expect(err).to.be.null;
-
-          expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-        });
-
-        done();
-      });
-
-
-      it("Key Derivation: ._derive_key() => .pbkdf2()", done => {
-        let opts = {
-          hashing: "w00t"
-        }, tmp = require("../index.js")(opts);
-
-        tmp._derive_key(secret, (err, res) => {
-          expect(err).to.equal("Unable to derive key!");
-          expect(res).to.equal.null;
-        });
-
-        done();
-      });
-
-
-      it("Key Derivation: ._derive_key() => .scrypt()", done => {
-        let opts = {
-          use_scrypt: true
-        }, scrypt_limits = {
-          N: 2 ** 16, p: 1, r: 1
-        }, tmp = require("../index.js")(opts);
-
-        tmp._derive_key({secret: secret, opts: scrypt_limits}, (err, res) => {
-          if (typeof crypto.scryptSync === "function") {
             expect(err).to.equal("Unable to derive key!");
             expect(res).to.equal.null;
-          } else {
-            expect(err).to.equal.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-          }
+          });
+
+          done();
         });
 
-        done();
+
+        it("Key Derivation: ._derive_key() => .scrypt()", done => {
+          let opts = {
+            use_scrypt: true
+          }, scrypt_limits = {
+            N: 2 ** 16, p: 1, r: 1
+          }, tmp = require("../index.js")(opts);
+
+          tmp._derive_key({secret: secret, opts: scrypt_limits}, (err, res) => {
+            if (typeof crypto.scryptSync === "function") {
+              expect(err).to.equal("Unable to derive key!");
+              expect(res).to.equal.null;
+            } else {
+              expect(err).to.equal.null;
+              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+            }
+          });
+
+          done();
+        });
+
+
+        it("Digest Validation: ._digest()", done => {
+          kruptein._digest(test.options.secret, plaintext, "w00t",
+                          test.options.encodeas, (err, res) => {
+                            expect(err).to.equal("Unable to generate digest!");
+                            expect(res).to.equal.null;
+                          });
+
+          done();
+        });
       });
 
 
-      it("Digest Validation: ._digest()", done => {
-        kruptein._digest(test.options.secret, plaintext, "w00t",
-                         test.options.encodeas, (err, res) => {
-                          expect(err).to.equal("Unable to generate digest!");
-                          expect(res).to.equal.null;
-                        });
+      describe("Encryption Tests", () => {
+        it("Validate Ciphertext: ._encrypt()", done => {
+          let iv = kruptein._iv(kruptein._iv_size);
 
-        done();
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode)
+                                  expect(res).to.have.property("at");
+                              });
+          });
+
+          done();
+        });
+
+
+        it("Validate Ciphertext (AAD): ._encrypt()", done => {
+          if (!kruptein._aead_mode)
+            return done();
+
+          let iv = kruptein._iv(kruptein._iv_size),
+              aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+
+            kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, aad, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode)
+                                  expect(res).to.have.property("at");
+                              });
+          });
+
+          done();
+        });
       });
 
 
-      it("Validate Ciphertext: ._encrypt()", done => {
-        let iv = kruptein._iv(kruptein._iv_size);
+      describe("Decryption Tests", () => {
 
-        kruptein._derive_key(secret, (err, res) => {
-          expect(err).to.be.null;
+        it("Validate Plaintext: ._decrypt()", done => {
+          let key, iv = kruptein._iv(kruptein._iv_size);
 
-          kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
-                            kruptein.encodeas, iv, (err, res) => {
-                              expect(err).to.be.null;
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
 
-                              expect(res).to.have.property("ct");
+            key = res.key;
 
-                              if (kruptein._aead_mode)
-                                expect(res).to.have.property("at");
-                            });
+            kruptein._encrypt(key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, (err, res) => {
+                                expect(err).to.be.null;
+
+                                expect(res).to.have.property("ct");
+
+                                if (kruptein._aead_mode) {
+                                  expect(res).to.have.property("at");
+                                }
+
+                                kruptein._decrypt(key, res.ct, kruptein.algorithm,
+                                                  kruptein.encodeas, iv,
+                                                  res.at, (err, res) => {
+                                  expect(err).to.be.null;
+
+                                  expect(res).to.equal(plaintext);
+                                });
+            });
+          });
+
+          done();
         });
 
-        done();
-      });
 
+        it("Validate Plaintext (AAD): ._decrypt()", done => {
+          if (!kruptein._aead_mode)
+            return done();
 
-      it("Validate Ciphertext (AAD): ._encrypt()", done => {
-        if (!kruptein._aead_mode)
-          return done();
+          let key, iv = kruptein._iv(kruptein._iv_size),
+              aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
 
-        let iv = kruptein._iv(kruptein._iv_size),
-            aad = kruptein._iv(1 << (8 * (15 - iv.byteLength)) - 1);
+          kruptein._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
 
-        kruptein._derive_key(secret, (err, res) => {
-          expect(err).to.be.null;
+            key = res.key;
 
-          kruptein._encrypt(res.key, plaintext, kruptein.algorithm,
-                            kruptein.encodeas, iv, aad, (err, res) => {
-                              expect(err).to.be.null;
+            kruptein._encrypt(key, plaintext, kruptein.algorithm,
+                              kruptein.encodeas, iv, aad, (err, res) => {
+                                expect(err).to.be.null;
 
-                              expect(res).to.have.property("ct");
+                                expect(res).to.have.property("ct");
 
-                              if (kruptein._aead_mode)
-                                expect(res).to.have.property("at");
-                            });
+                                if (kruptein._aead_mode) {
+                                  expect(res).to.have.property("at");
+                                }
+
+                                kruptein._decrypt(key, res.ct, kruptein.algorithm,
+                                                  kruptein.encodeas, iv,
+                                                  res.at, aad, (err, res) => {
+                                  expect(err).to.be.null;
+
+                                  expect(res).to.equal(plaintext);
+                                });
+            });
+          });
+
+          done();
         });
-
-        done();
       });
     });
 
 
-    describe("Public Function Tests", () => {
+    describe("Public Function", () => {
 
-      it.skip("Missing Secret: .set()", done => {
-        kruptein.set("", plaintext, (err, res) => {
-          expect(err).to.equal("Must supply a secret!");
-          expect(res).to.be.null;
+      describe("Encrypt Tests", () => {
+
+        it("Insecure Cipher: .set()", done => {
+          let opts = {
+            algorithm: "aes-128-ccm"
+          }, tmp = require("../index.js")(opts);
+
+          tmp.set(secret, plaintext, (err, res) => {
+            expect(err).to.equal("Insecure cipher mode not supported!");
+            expect(res).to.be.null;
+          });
+
+          done();
         });
 
-        done();
+
+        it("Missing Secret: .set()", done => {
+          kruptein.set("", plaintext, (err, res) => {
+            expect(err).to.equal("Must supply a secret!");
+            expect(res).to.be.null;
+          });
+
+          done();
+        });
       });
 
 
-      it.skip("Missing Secret: .get()", done => {
-        kruptein.get("", plaintext, (err, res) => {
-          expect(err).to.equal("Must supply a secret!");
-          expect(res).to.be.null;
+      describe("Decrypt Tests", () => {
+
+        it("Insecure Cipher: .get()", done => {
+          let opts = {
+            algorithm: "aes-128-ccm"
+          }, tmp = require("../index.js")(opts);
+
+          tmp.get(secret, plaintext, (err, res) => {
+            expect(err).to.equal("Insecure cipher mode not supported!");
+            expect(res).to.be.null;
+          });
+
+          done();
         });
 
-        done();
+
+        it("Missing Secret: .get()", done => {
+          kruptein.get("", plaintext, (err, res) => {
+            expect(err).to.equal("Must supply a secret!");
+            expect(res).to.be.null;
+          });
+
+          done();
+        });
       });
 
 
