@@ -15,8 +15,8 @@ To install `npm install kruptein`
 
 Methods
 -------
-*   `.set(secret, plaintext, [aad])`: Create plaintext from ciphertext
-*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}])`: Create ciphertext from plaintext
+*   `.set(secret, plaintext, [aad], callback)`: Create plaintext from ciphertext
+*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`: Create ciphertext from plaintext
 
 Options
 -------
@@ -173,6 +173,7 @@ etc.
 
 References:
 *   [RFC 4806](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
+*   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
 *   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
@@ -181,6 +182,9 @@ References:
 *   [SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
 *   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
 *   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
+*   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
+*   [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard (AES)
+*   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 
 Contributing
 ------------
