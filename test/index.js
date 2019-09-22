@@ -137,10 +137,10 @@ tests.forEach(test => {
 
         it("Digest Validation: ._digest()", done => {
           kruptein._digest(test.options.secret, plaintext, "w00t",
-                          test.options.encodeas, (err, res) => {
-                            expect(err).to.equal("Unable to generate digest!");
-                            expect(res).to.equal.null;
-                          });
+                           test.options.encodeas, (err, res) => {
+                             expect(err).to.equal("Unable to generate digest!");
+                             expect(res).to.equal.null;
+                           });
 
           done();
         });

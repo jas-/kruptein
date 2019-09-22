@@ -1,10 +1,9 @@
-"use strict"
+"use strict";
 
 const crypto = require('crypto');
 
-let hmac, secret = "squirrel", kruptein,
+let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    ciphers_tmp = [], hashes_tmp = [],
     encoding = ['binary'];
 
 const options = {
@@ -17,14 +16,14 @@ const options = {
 ciphers = crypto.getCiphers().filter(cipher => {
   if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
     return cipher;
-})
+});
 
 
 // Filter getHashes()
 hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
-})
+});
 
 
 for (let cipher in ciphers) {
@@ -57,7 +56,7 @@ for (let cipher in ciphers) {
           console.log(err);
 
         pt = res;
-      })
+      });
 
       console.log(pt);
       console.log("");
