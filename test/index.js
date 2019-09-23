@@ -392,7 +392,7 @@ tests.forEach(test => {
 
     describe("Public Function", () => {
 
-      describe("Encrypt Tests", () => {
+      describe("Encryption Tests", () => {
 
         it("Insecure Cipher: .set()", done => {
           let opts = {
@@ -416,10 +416,30 @@ tests.forEach(test => {
 
           done();
         });
+
+
+        it("Validate Ciphertext: .set()", done => {
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+          });
+
+          done();
+        });
+
+
       });
 
 
-      describe("Decrypt Tests", () => {
+      describe("Decryption Tests", () => {
 
         it("Insecure Cipher: .get()", done => {
           let opts = {
@@ -443,56 +463,41 @@ tests.forEach(test => {
 
           done();
         });
+
+
+        it("HMAC Validation: .set()", done => {
+          let ct;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          ct.hmac = "funky chicken";
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.equal("Encrypted session was tampered with!");
+            expect(res).to.be.null;
+          });
+
+          done();
+        });
       });
 
 
-      it.skip("Encrypt Validation", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (kruptein.aead_mode)
-          expect(ct).to.have.property("at");
-
-        done();
-      });
 
 
-      it.skip("HMAC Validation", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (kruptein.aead_mode)
-          expect(ct).to.have.property("at");
-
-        ct.hmac = "funky chicken";
-        ct = JSON.stringify(ct);
-
-        try {
-          pt = kruptein.get(secret, ct);
-
-          if (kruptein.aead_mode) {
-            expect(pt).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
-          }
-        } catch(err) {
-          expect(err).to.equal("Encrypted session was tampered with!");
-        }
-
-        done();
-      });
 
 
       it.skip("Authentication Tag Validation", done => {
