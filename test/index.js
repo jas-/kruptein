@@ -24,7 +24,7 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
-
+ciphers = ["aes-256-gcm"];
 
 // Build tests array"s
 ciphers.forEach(cipher => {
@@ -390,7 +390,7 @@ tests.forEach(test => {
     });
 
 
-    describe("Public Function", () => {
+    describe("Public Functions", () => {
 
       describe("Encryption Tests", () => {
 
@@ -436,6 +436,24 @@ tests.forEach(test => {
         });
 
 
+        it("Validate Ciphertext: (scrypt) .set()", done => {
+          kruptein._use_scrypt = true;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+          });
+
+          done();
+        });
       });
 
 
@@ -458,6 +476,33 @@ tests.forEach(test => {
         it("Missing Secret: .get()", done => {
           kruptein.get("", plaintext, (err, res) => {
             expect(err).to.equal("Must supply a secret!");
+            expect(res).to.be.null;
+          });
+
+          done();
+        });
+
+
+        it("Ciphertext parsing: .set()", done => {
+          let ct;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.equal("Unable to parse ciphertext object!");
             expect(res).to.be.null;
           });
 
@@ -493,155 +538,206 @@ tests.forEach(test => {
 
           done();
         });
-      });
 
 
+        it("AT Validation: .get()", done => {
+          let ct;
 
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
 
+            res = JSON.parse(res);
 
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
 
-      it.skip("Authentication Tag Validation", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
 
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
+            ct = res;
+          });
 
-        if (!kruptein.aead_mode)
-          done();
+          if (!kruptein._aead_mode)
+            done();
 
-        expect(ct).to.have.property("at");
-
-        ct.at = crypto.randomBytes(16);
-        ct = JSON.stringify(ct);
-
-        try {
-          pt = kruptein.get(secret, ct);
-        } catch(err) {
-          expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
-        }
-
-        done();
-      });
-
-
-      it.skip("Authentication Tag Validation (option)", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (!kruptein.aead_mode)
-          done();
-
-        expect(ct).to.have.property("at");
-
-        let opts = {at: ct.at};
-        ct = JSON.stringify(ct);
-
-        try {
-          pt = kruptein.get(secret, ct, opts);
-        } catch(err) {
-          expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
-        }
-
-        done();
-      });
-
-
-      it.skip("Additional Authentication Data Validation", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (!kruptein.aead_mode)
-          done();
-
-        expect(ct).to.have.property("at");
-
-        ct.aad = crypto.randomBytes(16);
-        ct = JSON.stringify(ct);
-
-        try {
-          pt = kruptein.get(secret, ct);
-        } catch(err) {
-          expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
-        }
-
-        done();
-      });
-
-
-      it.skip("Additional Authentication Data Validation (option)", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        if (!ct.aad)
-          return done();
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (!kruptein.aead_mode)
-          done();
-
-        expect(ct).to.have.property("at");
-
-        let opts = {aad: ct.aad};
-        ct = JSON.stringify(ct);
-
-        try {
-          pt = kruptein.get(secret, ct, opts);
-        } catch(err) {
-          expect(err).to.match(/invalid key length|Unsupported state or unable to authenticate data/);
-        }
-
-        done();
-      });
-
-
-      it.skip("Decrypt Validation", done => {
-        try {
-          ct = JSON.parse(kruptein.set(secret, plaintext));
-        } catch(err) {
-          expect(err).to.be.null;
-        }
-
-        expect(ct).to.have.property("ct");
-        expect(ct).to.have.property("iv");
-        expect(ct).to.have.property("hmac");
-
-        if (kruptein.aead_mode)
           expect(ct).to.have.property("at");
 
-        try {
-          pt = kruptein.get(secret, JSON.stringify(ct)).replace(/"/g, "");
-        } catch(err) {
-          expect(err).to.be.null;
-        }
+          ct.at = crypto.randomBytes(kruptein._at_size);
+          ct = JSON.stringify(ct);
 
-        expect(pt).to.equal(plaintext);
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.match(/Unable to decrypt ciphertext!|null/);
+            expect(res).to.be.null;
+          });
 
-        done();
+          done();
+        });
+
+
+        it("AT Validation (opts): .get()", done => {
+          let ct, at;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          if (!kruptein._aead_mode)
+            done();
+
+          expect(ct).to.have.property("at");
+
+          at = ct.at;
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, {at: at}, (err, res) => {
+            expect(err).to.be.null;
+            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+          });
+
+          done();
+        });
+
+
+        it("AAD Validation: .get()", done => {
+          let ct;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          if (!kruptein._aead_mode)
+            done();
+
+          expect(ct).to.have.property("at");
+
+          ct.aad = crypto.randomBytes(ct.aad.length + 1);
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.match(/Unable to decrypt ciphertext!|null/);
+            expect(res).to.be.null;
+          });
+
+          done();
+        });
+
+
+        it("AAD Validation (opts): .get()", done => {
+          let ct, aad;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein.aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          if (!kruptein._aead_mode)
+            done();
+
+          expect(ct).to.have.property("at");
+
+          aad = ct.aad;
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, {aad: aad}, (err, res) => {
+            expect(err).to.be.null;
+            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+          });
+
+          done();
+        });
+
+
+        it("Validate Plaintext: .get()", done => {
+          let ct;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein._aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.be.null;
+            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+          });
+
+          done();
+        });
+
+
+        it("Validate Plaintext (scrypt): .get()", done => {
+          let ct;
+
+          kruptein._use_scrypt = true;
+
+          kruptein.set(secret, plaintext, (err, res) => {
+            expect(err).to.be.null;
+
+            res = JSON.parse(res);
+
+            expect(res).to.have.property("ct");
+            expect(res).to.have.property("iv");
+            expect(res).to.have.property("hmac");
+
+            if (kruptein._aead_mode)
+              expect(res).to.have.property("at");
+
+            ct = res;
+          });
+
+          ct = JSON.stringify(ct);
+
+          kruptein.get(secret, ct, (err, res) => {
+            expect(err).to.be.null;
+            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+          });
+
+          done();
+        });
       });
     });
   });
