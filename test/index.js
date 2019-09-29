@@ -24,9 +24,9 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
-ciphers = ["aes-256-gcm"];
 
-// Build tests array"s
+
+// Build tests array
 ciphers.forEach(cipher => {
   hashes.forEach(hash => {
     encoding.forEach(encode => {
@@ -49,7 +49,6 @@ ciphers.forEach(cipher => {
 // Begin iterator
 tests.forEach(test => {
   describe("kruptein: "+test.title, () => {
-    let ct, pt;
 
     // Init kruptein with the test options
     beforeEach(done => {
