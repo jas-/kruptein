@@ -27,7 +27,6 @@ Options
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
-*   `debug`: (Optional) Provides additional information about internal operations.
 
 Tests
 -----
@@ -58,7 +57,7 @@ kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct
 });
 ```
 
-Create ciphertext from plaintext; assumes AEAD class of ciphers with a custom AAD
+Create ciphertext from plaintext; (AEAD class of ciphers with a custom AAD)
 ------------------------
 To create new ciphertext providing custom 'additional authentication data'.
 
@@ -92,7 +91,7 @@ kruptein.get(secret, ciphertext, (err, pt) => {
 });
 ```
 
-Get plaintext from ciphertext; assumes AEAD class of ciphers with a custom AT
+Get plaintext from ciphertext; (AEAD class of ciphers with a custom AT)
 -----------------------------------
 To retrieve plaintext using an external authentication tag
 
@@ -110,7 +109,7 @@ kruptein.get(secret, ciphertext, at, (err, pt) => {
 });
 ```
 
-Get plaintext from ciphertext; assumes AEAD class of ciphers with a custom AAD
+Get plaintext from ciphertext; (AEAD class of ciphers with a custom AAD)
 --------------------------------
 To retrieve plaintext using some optional additional authentication data
 
@@ -139,7 +138,7 @@ the following structure is returned.
 
 ```json
 {
-  'hmac': "<calculated hmac>",
+  'hmac': "<binary format of calculated hmac>",
   'ct': "<binary format of resulting ciphertext>",
   'iv': "<buffer format of generated/supplied iv>",
   'salt': "<buffer format of generated/supplied salt>"
@@ -156,7 +155,7 @@ not provided a digest of the derived key & iv is used.
 
 ```json
 {
-  'hmac': "<calculated hmac>",
+  'hmac': "<binary format of calculated hmac>",
   'ct': "<binary format of resulting ciphertext>",
   'iv': "<buffer format of generated/supplied iv>",
   'salt': "<buffer format of generated/supplied salt>",

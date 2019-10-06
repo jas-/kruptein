@@ -7,8 +7,7 @@ let secret = "squirrel", kruptein,
     encoding = ['binary'];
 
 const options = {
-  use_scrypt: true,
-  debug: true
+  use_scrypt: true
 };
 
 
@@ -49,6 +48,12 @@ for (let cipher in ciphers) {
       });
 
       console.log(JSON.stringify(ct));
+
+      kruptein.set(secret, "plaintext.txt", (err, res) => {
+        if (err)
+          console.log(err);
+      });
+
 
 
       kruptein.get(secret, ct, (err, res) => {
