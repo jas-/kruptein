@@ -1,10 +1,12 @@
 "use strict";
 
-const crypto = require('crypto');
+const fs = require("fs"),
+      crypto = require('crypto');
 
 let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    encoding = ['binary'];
+    encoding = ['binary'],
+    file_name = __dirname+"/plaintext.txt";
 
 const options = {
   use_scrypt: true
@@ -24,7 +26,7 @@ hashes = crypto.getHashes().filter(hash => {
     return hash;
 });
 
-
+console.log(file_name)
 for (let cipher in ciphers) {
   options.algorithm = ciphers[cipher];
 
@@ -34,11 +36,10 @@ for (let cipher in ciphers) {
     for (let enc in encoding) {
       options.encodeas = encoding[enc];
 
-      kruptein = require("../lib/kruptein.js")(options);
+      kruptein = require("../index.js")(options);
 
       console.log('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
       let ct, pt;
-
 
       kruptein.set(secret, "123, easy as ABC. ABC, easy as 123", (err, res) => {
         if (err)
@@ -48,13 +49,6 @@ for (let cipher in ciphers) {
       });
 
       console.log(JSON.stringify(ct));
-
-      kruptein.set(secret, "plaintext.txt", (err, res) => {
-        if (err)
-          console.log(err);
-      });
-
-
 
       kruptein.get(secret, ct, (err, res) => {
         if (err)
