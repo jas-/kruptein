@@ -5,8 +5,7 @@ const fs = require("fs"),
 
 let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    encoding = ['binary'],
-    file_name = __dirname+"/plaintext.txt";
+    encoding = ['binary']
 
 const options = {
   use_scrypt: true
@@ -26,7 +25,6 @@ hashes = crypto.getHashes().filter(hash => {
     return hash;
 });
 
-console.log(file_name)
 for (let cipher in ciphers) {
   options.algorithm = ciphers[cipher];
 

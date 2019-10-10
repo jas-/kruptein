@@ -36,8 +36,7 @@ ciphers.forEach(cipher => {
           "options": {
             "algorithm": cipher,
             "hashing": hash,
-            "encodeas": encode,
-            //"debug": true
+            "encodeas": encode
           }
         }
       );
