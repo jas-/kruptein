@@ -47,7 +47,7 @@ To create a new ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let ciphertext, secret = "squirrel";
+let secret = "squirrel";
 
 kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct) => {
   if (err)
@@ -63,7 +63,7 @@ To create new ciphertext providing custom 'additional authentication data'.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let ciphertext, secret = "squirrel";
+let secret = "squirrel";
 
 let aad = func_to_generate_aad();
 
@@ -81,7 +81,7 @@ To retrieve plaintext;
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let ciphertext, plaintext, ciphertext, secret = "squirrel";
+let ciphertext, secret = "squirrel";
 
 kruptein.get(secret, ciphertext, (err, pt) => {
   if (err)
@@ -97,11 +97,11 @@ To retrieve plaintext using an external authentication tag
 
 ```javascript
 const kruptein = require('kruptein')(opts);
-let ciphertext, plaintext, secret = "squirrel";
+let ciphertext, secret = "squirrel";
 
 let at = func_to_provide_authentication_tag(ciphertext);
 
-kruptein.get(secret, ciphertext, at, (err, pt) => {
+kruptein.get(secret, ciphertext, {at: at}, (err, pt) => {
   if (err)
     throw err;
   
@@ -115,11 +115,11 @@ To retrieve plaintext using some optional additional authentication data
 
 ```javascript
 const kruptein = require('kruptein')(opts);
-let ciphertext, plaintext, secret = "squirrel";
+let ciphertext, secret = "squirrel";
 
 let aad = func_to_provide_authentication_data();
 
-kruptein.get(secret, ciphertext, aad, (err, pt) => {
+kruptein.get(secret, ciphertext, {aad: aad}, (err, pt) => {
   if (err)
     throw err;
 
