@@ -1,11 +1,10 @@
 "use strict";
 
-const fs = require("fs"),
-      crypto = require('crypto');
+const crypto = require('crypto');
 
 let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    encoding = ['binary']
+    encoding = ['binary'];
 
 const options = {
   use_scrypt: true
