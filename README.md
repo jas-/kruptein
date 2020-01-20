@@ -171,7 +171,7 @@ mode, key size, iv size & implementation, digests, key derivation & management
 etc.
 
 References:
-*   [RFC 4806](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
+*   [RFC 4086](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
