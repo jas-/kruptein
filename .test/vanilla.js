@@ -23,7 +23,7 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
-
+/*
 for (let cipher in ciphers) {
   options.algorithm = ciphers[cipher];
 
@@ -32,13 +32,14 @@ for (let cipher in ciphers) {
 
     for (let enc in encoding) {
       options.encodeas = encoding[enc];
-
+i*/
       kruptein = require("../index.js")(options);
 
       console.log('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
       let ct, pt;
-
-      kruptein.set(secret, "123, easy as ABC. ABC, easy as 123", (err, res) => {
+const obj='{"cookie":{"originalMaxAge":null,"expires":"Sun, 30 Dec 2000 15:15:07 GMT","httpOnly":true,"path":"/"},"views":3,"__lastAccess":1577631227474}'
+      //kruptein.set(secret, "123, easy as ABC. ABC, easy as 123", (err, res) => {
+      kruptein.set(secret, obj, (err, res) => {
         if (err)
           console.log(err);
 
@@ -53,9 +54,10 @@ for (let cipher in ciphers) {
 
         pt = res;
       });
-
+/*
       console.log(pt);
       console.log("");
     }
   }
 }
+*/
