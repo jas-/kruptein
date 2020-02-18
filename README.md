@@ -8,6 +8,7 @@ crypto; from `kruptein` to hide or conceal
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
 [![Build Status](https://travis-ci.org/jas-/kruptein.png?branch=master)](https://travis-ci.org/jas-/kruptein)
 [![codecov](https://codecov.io/gh/jas-/kruptein/branch/master/graph/badge.svg)](https://codecov.io/gh/jas-/kruptein)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjas-%2Fkruptein.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjas-%2Fkruptein?ref=badge_shield)
 
 Install
 -------
@@ -197,3 +198,7 @@ License
 This software is licensed under the [MIT License](https://github.com/jas-/kruptein/blob/master/LICENSE).
 
 Copyright Jason Gerfen, 2019.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjas-%2Fkruptein.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjas-%2Fkruptein?ref=badge_large)
