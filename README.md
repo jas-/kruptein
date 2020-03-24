@@ -41,7 +41,7 @@ easy.
 You can always define your own if the defaults per algorithm and mode
 aren't what you would like; see the `options` section above.
 
-Create ciphertext from plaintext; default example
+Create ciphertext from plaintext
 -----------------
 To create a new ciphertext object.
 
@@ -57,69 +57,15 @@ kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct
 });
 ```
 
-Create ciphertext from plaintext; (AEAD class of ciphers with a custom AAD)
-------------------------
-To create new ciphertext providing custom 'additional authentication data'.
-
-```javascript
-const kruptein = require("kruptein")(opts);
-let secret = "squirrel";
-
-let aad = func_to_generate_aad();
-
-kruptein.set(secret, "Operation mincemeat was an example of deception", aad, (err, ct) => {
-  if (err)
-    throw err;
-  
-  console.log(ct);
-});
-```
-
-Get plaintext from ciphertext; default example
+Get plaintext from ciphertext
 ------------------
-To retrieve plaintext; 
+To retrieve plaintext from a ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
 let ciphertext, secret = "squirrel";
 
 kruptein.get(secret, ciphertext, (err, pt) => {
-  if (err)
-    throw err;
-
-  console.log(pt);
-});
-```
-
-Get plaintext from ciphertext; (AEAD class of ciphers with a custom AT)
------------------------------------
-To retrieve plaintext using an external authentication tag
-
-```javascript
-const kruptein = require('kruptein')(opts);
-let ciphertext, secret = "squirrel";
-
-let at = func_to_provide_authentication_tag(ciphertext);
-
-kruptein.get(secret, ciphertext, {at: at}, (err, pt) => {
-  if (err)
-    throw err;
-  
-  console.log(pt);
-});
-```
-
-Get plaintext from ciphertext; (AEAD class of ciphers with a custom AAD)
---------------------------------
-To retrieve plaintext using some optional additional authentication data
-
-```javascript
-const kruptein = require('kruptein')(opts);
-let ciphertext, secret = "squirrel";
-
-let aad = func_to_provide_authentication_data();
-
-kruptein.get(secret, ciphertext, {aad: aad}, (err, pt) => {
   if (err)
     throw err;
 
@@ -166,13 +112,18 @@ not provided a digest of the derived key & iv is used.
 
 Cryptography References
 -----------------------
-This module conforms to RFC and NIST recommendations regarding algorithm type,
+This module conforms to the provided documentation regarding industry recommendations regarding algorithm type,
 mode, key size, iv size & implementation, digests, key derivation & management
 etc.
 
-References:
+RFC:
+*   [RFC 2104](https://tools.ietf.org/html/rfc2104): HMAC: Keyed-Hashing for Message Authentication
 *   [RFC 4086](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
+*   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
+*   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
+
+NIST:
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
 *   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
@@ -181,9 +132,11 @@ References:
 *   [SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
 *   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
 *   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
-*   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
+
+FIPS:
 *   [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard (AES)
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
+*   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
 
 Contributing
 ------------
