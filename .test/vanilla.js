@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    encoding = ['binary'],
+    encoding = ['binary', 'hex', 'base64', 'utf16le'],
     phrases = [
       "Operation mincemeat was an example of deception",
       "Krimbi i operacionit ishte një shembull mashtrimi",
