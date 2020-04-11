@@ -4,7 +4,30 @@ const crypto = require('crypto');
 
 let secret = "squirrel", kruptein,
     ciphers = [], hashes = [],
-    encoding = ['binary'];
+    encoding = ['binary'],
+    phrases = [
+      "Operation mincemeat was an example of deception",
+      "Krimbi i operacionit ishte një shembull mashtrimi",
+      "ye’opirēshini mīnī-serashi yemataleli misalē neberi",
+      "كانت عملية اللحم المفروم مثالا للخداع",
+      "Գործողության աղանդը խաբեության օրինակ էր",
+      "অপারেশন মিনসমেট প্রতারণার উদাহরণ ছিল",
+      "ऑपरेशन कीमाईट धोखे का एक उदाहरण था",
+      "A darált sertéshús volt a megtévesztés egyik példája",
+      "Aðgerð kjötkjöt var dæmi um blekkingar",
+      "Sampla de mheabhlaireacht ab ea mincemeat oibríochta",
+      "L'operazione carne tritata era un esempio di inganno",
+      "Picadinho de operação foi um exemplo de engano",
+      "ਓਪਰੇਸ਼ਨ ਮੀਨਮੀਟ ਧੋਖਾ ਖਾਣ ਦੀ ਇੱਕ ਉਦਾਹਰਣ ਸੀ",
+      "Operațiunea mincemeat a fost un exemplu de înșelăciune",
+      "Операционный фарш был примером обмана",
+      "Операција мљевеног меса била је пример обмане",
+      "Chiến dịch mincemeat là một ví dụ về sự lừa dối",
+      "Mincemeat-ийг ажиллуулах нь хууран мэхлэх жишээ байв",
+      "Operation Hackfleisch war ein Beispiel für Täuschung",
+      "ოპერაციის მინერალმა მოტყუების მაგალითი იყო", 
+    ];
+
 
 const options = {
   use_scrypt: true
@@ -38,24 +61,29 @@ for (let cipher in ciphers) {
       console.log('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
       let ct, pt;
 
-      kruptein.set(secret, "123, easy as ABC. ABC, easy as 123", (err, res) => {
-        if (err)
-          console.log(err);
+      for (let phrase in phrases) {
 
-        ct = res;
-      });
+        console.log(phrases[phrase])
 
-      console.log(JSON.stringify(ct));
+        kruptein.set(secret, phrases[phrase], (err, res) => {
+          if (err)
+            console.log(err);
 
-      kruptein.get(secret, ct, (err, res) => {
-        if (err)
-          console.log(err);
+          ct = res;
+        });
 
-        pt = res;
-      });
+        console.log(JSON.stringify(ct));
 
-      console.log(pt);
-      console.log("");
+        kruptein.get(secret, ct, (err, res) => {
+          if (err)
+            console.log(err);
+
+          pt = res;
+        });
+
+        console.log(pt);
+        console.log("");
+      }
     }
   }
 }

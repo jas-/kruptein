@@ -10,7 +10,29 @@ let kruptein, hmac, secret = "squirrel",
     ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     tests = [], encoding = ["binary"],
-    plaintext = "123, easy as ABC. ABC, easy as 123";
+    plaintext = "Operation mincemeat was an example of deception",
+    phrases = [
+      "Operation mincemeat was an example of deception",
+      "Krimbi i operacionit ishte një shembull mashtrimi",
+      "ye’opirēshini mīnī-serashi yemataleli misalē neberi",
+      "كانت عملية اللحم المفروم مثالا للخداع",
+      "Գործողության աղանդը խաբեության օրինակ էր",
+      "অপারেশন মিনসমেট প্রতারণার উদাহরণ ছিল",
+      "ऑपरेशन कीमाईट धोखे का एक उदाहरण था",
+      "A darált sertéshús volt a megtévesztés egyik példája",
+      "Aðgerð kjötkjöt var dæmi um blekkingar",
+      "Sampla de mheabhlaireacht ab ea mincemeat oibríochta",
+      "L'operazione carne tritata era un esempio di inganno",
+      "Picadinho de operação foi um exemplo de engano",
+      "ਓਪਰੇਸ਼ਨ ਮੀਨਮੀਟ ਧੋਖਾ ਖਾਣ ਦੀ ਇੱਕ ਉਦਾਹਰਣ ਸੀ",
+      "Operațiunea mincemeat a fost un exemplu de înșelăciune",
+      "Операционный фарш был примером обмана",
+      "Операција мљевеног меса била је пример обмане",
+      "Chiến dịch mincemeat là một ví dụ về sự lừa dối",
+      "Mincemeat-ийг ажиллуулах нь хууран мэхлэх жишээ байв",
+      "Operation Hackfleisch war ein Beispiel für Täuschung",
+      "ოპერაციის მინერალმა მოტყუების მაგალითი იყო", 
+    ];
 
 
 // Filter getCiphers()
