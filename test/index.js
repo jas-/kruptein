@@ -9,29 +9,22 @@ const expect = require("expect.js");
 let kruptein, hmac, secret = "squirrel",
     ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
-    tests = [], encoding = ["binary", "hex", "base64", "utf16le"],
-    plaintext = "Operation mincemeat was an example of deception.",
+    tests = [], encoding = ["binary", "hex", "base64"],
     phrases = [
-      "Operation mincemeat was an example of deception",
-      "Krimbi i operacionit ishte një shembull mashtrimi",
-      "ye’opirēshini mīnī-serashi yemataleli misalē neberi",
-      "كانت عملية اللحم المفروم مثالا للخداع",
-      "Գործողության աղանդը խաբեության օրինակ էր",
-      "অপারেশন মিনসমেট প্রতারণার উদাহরণ ছিল",
-      "ऑपरेशन कीमाईट धोखे का एक उदाहरण था",
-      "A darált sertéshús volt a megtévesztés egyik példája",
-      "Aðgerð kjötkjöt var dæmi um blekkingar",
-      "Sampla de mheabhlaireacht ab ea mincemeat oibríochta",
-      "L'operazione carne tritata era un esempio di inganno",
-      "Picadinho de operação foi um exemplo de engano",
-      "ਓਪਰੇਸ਼ਨ ਮੀਨਮੀਟ ਧੋਖਾ ਖਾਣ ਦੀ ਇੱਕ ਉਦਾਹਰਣ ਸੀ",
-      "Operațiunea mincemeat a fost un exemplu de înșelăciune",
-      "Операционный фарш был примером обмана",
-      "Операција мљевеног меса била је пример обмане",
-      "Chiến dịch mincemeat là một ví dụ về sự lừa dối",
-      "Mincemeat-ийг ажиллуулах нь хууран мэхлэх жишээ байв",
-      "Operation Hackfleisch war ein Beispiel für Täuschung",
-      "ოპერაციის მინერალმა მოტყუების მაგალითი იყო", 
+      "Secret Squirrel",
+      "écureuil secret",
+      "गुप्त गिलहरी",
+      "ਗੁਪਤ ਗਿੱਠੀ",
+      "veverița secretă",
+      "секретная белка",
+      "leyndur íkorna",
+      "السنجاب السري",
+      "գաղտնի սկյուռ",
+      "feòrag dìomhair",
+      "gizli dələ",
+      "গোপন কাঠবিড়ালি",
+      "秘密のリス",
+      "таемная вавёрка",
     ];
 
 
@@ -156,7 +149,7 @@ tests.forEach(test => {
 
 
         it("Digest Validation: ._digest()", done => {
-          kruptein._digest(test.options.secret, plaintext, "w00t",
+          kruptein._digest(test.options.secret, phrases[0], "w00t",
                            test.options.encodeas, (err, res) => {
                              expect(err).to.equal("Unable to generate digest!");
                              expect(res).to.equal.null;
@@ -177,7 +170,7 @@ tests.forEach(test => {
             algorithm: "aes-128-ccm"
           }, tmp = require("../index.js")(opts);
 
-          tmp.set(secret, plaintext, (err, res) => {
+          tmp.set(secret, phrases[0], (err, res) => {
             expect(err).to.equal("Insecure cipher mode not supported!");
             expect(res).to.be.null;
           });
@@ -187,7 +180,7 @@ tests.forEach(test => {
 
 
         it("Missing Secret: .set()", done => {
-          kruptein.set("", plaintext, (err, res) => {
+          kruptein.set("", phrases[0], (err, res) => {
             expect(err).to.equal("Must supply a secret!");
             expect(res).to.be.null;
           });
@@ -197,7 +190,7 @@ tests.forEach(test => {
 
 
         it("Validate Ciphertext: .set()", done => {
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -217,7 +210,7 @@ tests.forEach(test => {
         it("Validate Ciphertext: (scrypt) .set()", done => {
           kruptein._use_scrypt = true;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -242,7 +235,7 @@ tests.forEach(test => {
             algorithm: "aes-128-ccm"
           }, tmp = require("../index.js")(opts);
 
-          tmp.get(secret, plaintext, (err, res) => {
+          tmp.get(secret, phrases[0], (err, res) => {
             expect(err).to.equal("Insecure cipher mode not supported!");
             expect(res).to.be.null;
           });
@@ -252,7 +245,7 @@ tests.forEach(test => {
 
 
         it("Missing Secret: .get()", done => {
-          kruptein.get("", plaintext, (err, res) => {
+          kruptein.get("", phrases[0], (err, res) => {
             expect(err).to.equal("Must supply a secret!");
             expect(res).to.be.null;
           });
@@ -264,7 +257,7 @@ tests.forEach(test => {
         it("Ciphertext parsing: .set()", done => {
           let ct;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -291,7 +284,7 @@ tests.forEach(test => {
         it("HMAC Validation: .set()", done => {
           let ct;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -321,7 +314,7 @@ tests.forEach(test => {
         it("AT Validation: .get()", done => {
           let ct;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -356,7 +349,7 @@ tests.forEach(test => {
         it("AT Validation (opts): .get()", done => {
           let ct, at;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -381,7 +374,7 @@ tests.forEach(test => {
 
           kruptein.get(secret, ct, {at: at}, (err, res) => {
             expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+            expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
           });
 
           done();
@@ -391,7 +384,7 @@ tests.forEach(test => {
         it("AAD Validation: .get()", done => {
           let ct;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -426,7 +419,7 @@ tests.forEach(test => {
         it("AAD Validation (opts): .get()", done => {
           let ct, aad;
 
-          kruptein.set(secret, plaintext, (err, res) => {
+          kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
             res = JSON.parse(res);
@@ -451,71 +444,73 @@ tests.forEach(test => {
 
           kruptein.get(secret, ct, {aad: aad}, (err, res) => {
             expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+            expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
           });
 
           done();
         });
 
 
-        it("Validate Plaintext: .get()", done => {
-          let ct;
+        for (let phrase in phrases) {
+          it("Validate Plaintext: .get(\""+phrases[phrase]+"\")", done => {
+            let ct;
 
-          kruptein.set(secret, plaintext, (err, res) => {
-            expect(err).to.be.null;
+            kruptein.set(secret, phrases[phrase], (err, res) => {
+              expect(err).to.be.null;
 
-            res = JSON.parse(res);
+              res = JSON.parse(res);
 
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
+              expect(res).to.have.property("ct");
+              expect(res).to.have.property("iv");
+              expect(res).to.have.property("hmac");
 
-            if (kruptein._aead_mode)
-              expect(res).to.have.property("at");
+              if (kruptein._aead_mode)
+                expect(res).to.have.property("at");
 
-            ct = res;
+              ct = res;
+            });
+
+            ct = JSON.stringify(ct);
+
+            kruptein.get(secret, ct, (err, res) => {
+              expect(err).to.be.null;
+              expect(res.replace(/\"/g, "")).to.equal(phrases[phrase]);
+            });
+
+            done();
           });
 
-          ct = JSON.stringify(ct);
 
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(plaintext);
+          it("Validate Plaintext (scrypt): .get(\""+phrases[phrase]+"\")", done => {
+            let ct;
+
+            kruptein._use_scrypt = true;
+
+            kruptein.set(secret, phrases[0], (err, res) => {
+              expect(err).to.be.null;
+
+              res = JSON.parse(res);
+
+              expect(res).to.have.property("ct");
+              expect(res).to.have.property("iv");
+              expect(res).to.have.property("hmac");
+
+              if (kruptein._aead_mode)
+                expect(res).to.have.property("at");
+
+              ct = res;
+            });
+
+            ct = JSON.stringify(ct);
+
+            kruptein.get(secret, ct, (err, res) => {
+              expect(err).to.be.null;
+              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
+            });
+
+            done();
           });
-
-          done();
-        });
-
-
-        it("Validate Plaintext (scrypt): .get()", done => {
-          let ct;
-
-          kruptein._use_scrypt = true;
-
-          kruptein.set(secret, plaintext, (err, res) => {
-            expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein._aead_mode)
-              expect(res).to.have.property("at");
-
-            ct = res;
-          });
-
-          ct = JSON.stringify(ct);
-
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(plaintext);
-          });
-
-          done();
-        });
+        }
       });
     });
   });
