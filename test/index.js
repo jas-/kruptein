@@ -21,7 +21,6 @@ let kruptein, hmac, secret = "squirrel",
       "السنجاب السري",
       "գաղտնի սկյուռ",
       "feòrag dìomhair",
-      "gizli dələ",
       "গোপন কাঠবিড়ালি",
       "秘密のリス",
       "таемная вавёрка",
@@ -75,7 +74,7 @@ tests.forEach(test => {
 
       describe("Validator Tests", () => {
 
-        it("Validate IV Size: ._iv()", done => {
+        it("Validate IV Size: ._iv(\""+kruptein._iv_size+"\")", done => {
           let tmp_iv = kruptein._iv(kruptein._iv_size);
 
           expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
@@ -84,7 +83,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Key Size: ._derive_key() => .pbkdf2()", done => {
+        it("Validate Key Size: ._derive_key() => .pbkdf2(\""+kruptein._key_size+"\")", done => {
           kruptein._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
 
@@ -95,7 +94,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Key Size: ._derive_key() => .scrypt()", done => {
+        it("Validate Key Size: ._derive_key() => .scrypt(\""+kruptein._key_size+"\")", done => {
           let opts = {
             use_scrypt: true
           }, tmp = require("../index.js")(opts);
@@ -113,7 +112,7 @@ tests.forEach(test => {
 
       describe("Key Derivation Tests", () => {
 
-        it("Key Derivation: ._derive_key() => .pbkdf2()", done => {
+        it("Key Derivation: ._derive_key() => .pbkdf2(\""+secret+"\")", done => {
           let opts = {
             hashing: "w00t"
           }, tmp = require("../index.js")(opts);
@@ -127,7 +126,7 @@ tests.forEach(test => {
         });
 
 
-        it("Key Derivation: ._derive_key() => .scrypt()", done => {
+        it("Key Derivation: ._derive_key() => .scrypt(\""+secret+"\")", done => {
           let opts = {
             use_scrypt: true
           }, scrypt_limits = {
@@ -148,7 +147,7 @@ tests.forEach(test => {
         });
 
 
-        it("Digest Validation: ._digest()", done => {
+        it("Digest Validation: ._digest(\""+phrases[0]+"\")", done => {
           kruptein._digest(test.options.secret, phrases[0], "w00t",
                            test.options.encodeas, (err, res) => {
                              expect(err).to.equal("Unable to generate digest!");
@@ -165,7 +164,7 @@ tests.forEach(test => {
 
       describe("Encryption Tests", () => {
 
-        it("Insecure Cipher: .set()", done => {
+        it("Insecure Cipher: .set(\""+phrases[0]+"\")", done => {
           let opts = {
             algorithm: "aes-128-ccm"
           }, tmp = require("../index.js")(opts);
@@ -179,7 +178,7 @@ tests.forEach(test => {
         });
 
 
-        it("Missing Secret: .set()", done => {
+        it("Missing Secret: .set(\""+phrases[0]+"\")", done => {
           kruptein.set("", phrases[0], (err, res) => {
             expect(err).to.equal("Must supply a secret!");
             expect(res).to.be.null;
@@ -189,7 +188,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Ciphertext: .set()", done => {
+        it("Validate Ciphertext: .set(\""+phrases[0]+"\")", done => {
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
 
@@ -207,7 +206,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Ciphertext: (scrypt) .set()", done => {
+        it("Validate Ciphertext: (scrypt) .set(\""+phrases[0]+"\")", done => {
           kruptein._use_scrypt = true;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -230,7 +229,7 @@ tests.forEach(test => {
 
       describe("Decryption Tests", () => {
 
-        it("Insecure Cipher: .get()", done => {
+        it("Insecure Cipher: .get(\""+phrases[0]+"\")", done => {
           let opts = {
             algorithm: "aes-128-ccm"
           }, tmp = require("../index.js")(opts);
@@ -244,7 +243,7 @@ tests.forEach(test => {
         });
 
 
-        it("Missing Secret: .get()", done => {
+        it("Missing Secret: .get(\""+phrases[0]+"\")", done => {
           kruptein.get("", phrases[0], (err, res) => {
             expect(err).to.equal("Must supply a secret!");
             expect(res).to.be.null;
@@ -254,7 +253,7 @@ tests.forEach(test => {
         });
 
 
-        it("Ciphertext parsing: .set()", done => {
+        it("Ciphertext parsing: .set(\""+phrases[0]+"\")", done => {
           let ct;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -281,7 +280,7 @@ tests.forEach(test => {
         });
 
 
-        it("HMAC Validation: .set()", done => {
+        it("HMAC Validation: .set(\""+phrases[0]+"\")", done => {
           let ct;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -311,7 +310,7 @@ tests.forEach(test => {
         });
 
 
-        it("AT Validation: .get()", done => {
+        it("AT Validation: .get(\""+phrases[0]+"\")", done => {
           let ct;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -346,7 +345,7 @@ tests.forEach(test => {
         });
 
 
-        it("AT Validation (opts): .get()", done => {
+        it("AT Validation (opts): .get(\""+phrases[0]+"\")", done => {
           let ct, at;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -381,7 +380,7 @@ tests.forEach(test => {
         });
 
 
-        it("AAD Validation: .get()", done => {
+        it("AAD Validation: .get(\""+phrases[0]+"\")", done => {
           let ct;
 
           kruptein.set(secret, phrases[0], (err, res) => {
@@ -416,7 +415,7 @@ tests.forEach(test => {
         });
 
 
-        it("AAD Validation (opts): .get()", done => {
+        it("AAD Validation (opts): .get(\""+phrases[0]+"\")", done => {
           let ct, aad;
 
           kruptein.set(secret, phrases[0], (err, res) => {
