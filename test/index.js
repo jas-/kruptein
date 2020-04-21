@@ -74,7 +74,7 @@ tests.forEach(test => {
 
       describe("Validator Tests", () => {
 
-        it("Validate IV Size: ._iv(\""+kruptein._iv_size+"\")", done => {
+        it("Validate IV Size: ._iv()", done => {
           let tmp_iv = kruptein._iv(kruptein._iv_size);
 
           expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
@@ -83,7 +83,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Key Size: ._derive_key() => .pbkdf2(\""+kruptein._key_size+"\")", done => {
+        it("Validate Key Size: ._derive_key() => .pbkdf2()", done => {
           kruptein._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
 
@@ -94,7 +94,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Key Size: ._derive_key() => .scrypt(\""+kruptein._key_size+"\")", done => {
+        it("Validate Key Size: ._derive_key() => .scrypt()", done => {
           let opts = {
             use_scrypt: true
           }, tmp = require("../index.js")(opts);
