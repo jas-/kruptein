@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "2.0.10",
+  "version": "2.1.0",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -18,7 +18,6 @@
     "unicode",
     "symmetric",
     "cipher",
-    "FIPS 140-2",
     "key derivation",
     "scrypt",
     "pbkdf2",
@@ -37,10 +36,10 @@
     "url": "https://github.com/jas-/kruptein/issues"
   },
   "devDependencies": {
-    "codecov": "^3.6.5",
+    "codecov": "^3.7.0",
     "expect.js": "^0.3.1",
-    "mocha": "^7.1.1",
-    "nyc": "^15.0.0"
+    "mocha": "^7.2.0",
+    "nyc": "^15.1.0"
   },
   "scripts": {
     "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",

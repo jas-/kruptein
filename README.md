@@ -20,6 +20,8 @@ Methods
 
 Options
 -------
+Industry standards are used for the algorithm, hashing algorithm, key & IV sizes. The default key derivation
+is pbkdf2, however use of the scrypt derivation function can be enabled.
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
 *   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `binary`.
@@ -97,7 +99,7 @@ For those ciphers that __DO__ support [authentication modes](https://csrc.nist.g
 the following structure is returned.
 
 __Important__: Note that in the event additional authentication data (aad) is
-not provided a digest of the derived key & iv is used.
+not provided a random 128 byte salt is used.
 
 ```json
 {
@@ -112,18 +114,18 @@ not provided a digest of the derived key & iv is used.
 
 Cryptography References
 -----------------------
-This module conforms to the provided documentation regarding industry recommendations regarding algorithm type,
+This module conforms to industry recommendations regarding algorithm type,
 mode, key size, iv size & implementation, digests, key derivation & management
-etc.
+etc. References used provided here:
 
-RFC:
+**RFC:**
 *   [RFC 2104](https://tools.ietf.org/html/rfc2104): HMAC: Keyed-Hashing for Message Authentication
 *   [RFC 4086](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
 *   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
 *   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
 
-NIST:
+**NIST:**
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
 *   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
@@ -133,7 +135,7 @@ NIST:
 *   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
 *   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
 
-FIPS:
+**FIPS:**
 *   [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard (AES)
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
