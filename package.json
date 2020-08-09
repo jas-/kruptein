@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "codecov": "^3.7.2",
     "expect.js": "^0.3.1",
-    "mocha": "^8.1.1",
+    "mocha": ">=7.1.1",
     "nyc": "^15.1.0"
   },
   "scripts": {
