@@ -1,6 +1,6 @@
 kruptein
 ========
-crypto; from `kruptein` to hide or conceal
+crypto; from `kruptein` to hide or conceal.
 
 [![npm](https://img.shields.io/npm/v/kruptein.svg)](https://npmjs.com/package/kruptein)
 ![Downloads](https://img.shields.io/npm/dm/kruptein.svg)
@@ -29,6 +29,7 @@ is pbkdf2, however use of the scrypt derivation function can be enabled.
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
+*   `use_asn1`: (Optional) If enabled the resulting object is [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/) encoded. Default: false
 
 Tests
 -----
@@ -37,7 +38,7 @@ To test use `npm test` or `node .test/vanilla.js`
 Usage
 -----
 When selecting an algorithm from `crypto.getCiphers()` the
-`iv` and `key_size` values are calculated auto-magically to make implementation 
+`iv` and `key_size` values are calculated auto-magically to make implementation
 easy.
 
 You can always define your own if the defaults per algorithm and mode
@@ -54,7 +55,7 @@ let secret = "squirrel";
 kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct) => {
   if (err)
     throw err;
-    
+
   console.log(ct);
 });
 ```
@@ -77,7 +78,17 @@ kruptein.get(secret, ciphertext, (err, pt) => {
 
 Output
 ------
-The `.set()` method creates the following object;
+The `.set()` method output depends on three factors; the `encodeas`,
+`algorithm` and `use_asn1`.
+
+For any algorithm that supports authentication (AEAD), the object
+structure includes the `Authentication Tag` and the `Additional
+Authentication Data` attribute and value.
+
+When the `use_asn1` option is enabled, the result is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+value using the `encodeas` value. While this is a more complex
+encoding option, it should help standardize the output for database storage.
+
 
 Non-Authenticated Ciphers
 -------------------------
@@ -111,6 +122,28 @@ not provided a random 128 byte salt is used.
   'aad': "<buffer format of generated/supplied additional authentication data>"
 }
 ```
+
+ASN.1 Encoding
+-------------------------
+When the `use_asn1` option is enabled an [ANS.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+value encoded with the format specifed with `encodeas` option is returned regardless of the cipher mode. This
+return type will ensure compatibility with various database engines and the character set encoding available
+for them.
+
+Examples:
+```
+# enocdeas = binary
+0\u0001n\u0004\u0019ÂÃ»Â Ã¬Ã#$ÃÃ´Ã½\u001d(a6'P>\u00042Ã©UÃÃ2ÃÂ¨Â©kÂdkÃ§EÃ¶Â«\"Â°ÂÂLI,Ã½<\rÃÂ±IÂ»\b\u0004\u0010N6KÂ±Ã¼\u001eC\nÃÃ®.E\u0004ÀÂ¿KÂ¼nOÂ¶%ÂÂ­ÃÃ&jc6_Ãª.WÃ»}Ãy`1KCZiÂÃ'QHÃ¯\rÂqÃ¦Ã Ã´\u0011Ã·ÂFfÂÃ«\\`\u0015ÂºÂ§ÂÂÂ\u000fÂÃÂ\u0014TÂÂPÃ¥Â¸ÃÃ´}Ã½\u0002ÂÂ°1Â¡ÃÂ¯Ã°Â­Ã\u0015%j$<Ã£Ã¥\nÃ½ÃÂ¦ÃdÃ¦Ã«L ÂT@v\\]\u001a\u0006Â³Ã;XÂ\b\u0005Â¥d8\u0017Ã¨Â¢Â§ÂµÃ½\"Ã´Ã»\u0019\u0004\u0010:\"çM¦ÔÖÌE\u001fEÌ\b\u00046=Â²ÂÂÂ¿Ã½9Ã¡ Ã\u0001Ã¸Ã¡ÃµÂÃ½#Ã¾ÂÃ£Ã¾Ã¹ÂºN%ÃÂ ÃÂH
+
+# encodeas = hex
+308201d80422313764663766313962303939393863306536366436643837646233346263386338630440373661643461633462653765343330393738363164646139636663343139646165386533363838333836613133376431623930373138326532663035613232300418656437323161333938323737393231623463613835383563048201006634346438623633316162343762396163303739393931336266633464356162323633356163313635383533613232623934386464646161323762303839646130623764323830303063303938333332343462383536323737383134386262653261383937623562376538613730333834616233363939613366633433636630616231663366636364393038356436653135343666626364313030643761333563623530313030333838316264346133663961313961336666343132323535386266383764613863643437336635383938326161666637646533303030373564643034623264383862333733323332333565386132626234383461663530623604102b981bf150521b81819449afa614c644044062353937313939343438623035663932383837363763343161636335653634393664313634303430343833346466626634646462653963663730303462353739
+
+# encodeas = base64
+MIIBSQQYakpmVURhKzE1Qml1SGQyUGdKUnI2RFk9BCxtb1BmcFNPU3ZicXpBSHQzcTlpRTMvRkdrVlk3cHpvTHd4dmR3bUdIcHVFPQQQUzc3eVczRndzdDdUQXhYcgSBrFhVYXVtdDV4Vmo5T1A0TE85L0dYMmNSdkFQSGZUNGhUa2sycVdUWGs3R05EZnI0QXZRMmdJYWREVHFZVmFRdjQzcXNWeUQzcXVpWVRRbXZSM0lNeUIzUnBlc0dIeDFMWHFOdDFXWXFONVdLVnhHQzVXcEc4dVdpc2t5bEh4bWNGcDRlUFNKMDJaUGpkSytGOGxJNzZ0bnJSYWJSemxaN0RNNmhYeFpnWEdtUT0EEE5WruRF8rNh3q0MHjdhZz8ELE91ZjFMUERhdW5JOHJSODNGeVd2cU56ZmZFQWdxUUVFdlpMZkx6VEdGbk09
+```
+
+
+
 
 Cryptography References
 -----------------------

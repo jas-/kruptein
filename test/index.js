@@ -29,7 +29,7 @@ let kruptein, hmac, secret = "squirrel",
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb|ocb2/))
+  if (cipher.match(/^aes/i) && cipher.match(/256/i) && !cipher.match(/hmac|wrap|ccm|ecb|ocb2/))
     return cipher;
 });
 
@@ -38,6 +38,11 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
+
+
+// Because we want a quick test
+ciphers=["aes-256-gcm"];
+hashes=["sha512"];
 
 
 // Build tests array
@@ -220,6 +225,21 @@ tests.forEach(test => {
 
             if (kruptein.aead_mode)
               expect(res).to.have.property("at");
+          });
+
+          done();
+        });
+
+
+        it("Validate Ciphertext: (ASN.1) .set(\""+phrases[0]+"\")", done => {
+          let opts = {
+            use_asn1: true
+          }, tmp = require("../index.js")(opts);
+
+          tmp.set(secret, phrases[0], (err, res) => {
+            expect(err).to.be.null;
+
+            expect(res).to.not.be.null;
           });
 
           done();
@@ -504,6 +524,32 @@ tests.forEach(test => {
 
             kruptein.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
+              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
+            });
+
+            done();
+          });
+
+
+          it("Validate Plaintext (ASN.1): .get(\""+phrases[phrase]+"\")", done => {
+
+            let ct,
+                opts = {
+                  use_asn1: true
+                },
+                tmp = require("../index.js")(opts);
+
+            tmp.set(secret, phrases[0], (err, res) => {
+              expect(err).to.be.null;
+
+              expect(res).to.not.be.null;
+
+              ct = res;
+            });
+
+            tmp.get(secret, ct, (err, res) => {
+              expect(err).to.be.null;
+
               expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
             });
 

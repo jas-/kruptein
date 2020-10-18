@@ -23,13 +23,14 @@ let secret = "squirrel", kruptein,
 
 
 const options = {
-  use_scrypt: true
+  use_scrypt: true,
+  use_asn1: true
 };
 
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
+  if (cipher.match(/^aes/i) && cipher.match(/256/i)&& !cipher.match(/hmac|wrap|ccm|ecb/))
     return cipher;
 });
 
@@ -39,6 +40,10 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
+
+// Because we want a quick test
+ciphers=["aes-256-gcm"];
+hashes=["sha512"];
 
 for (let cipher in ciphers) {
   options.algorithm = ciphers[cipher];
@@ -80,4 +85,3 @@ for (let cipher in ciphers) {
     }
   }
 }
-
