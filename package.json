@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -21,7 +21,8 @@
     "key derivation",
     "scrypt",
     "pbkdf2",
-    "security"
+    "security",
+    "asn.1"
   ],
   "author": {
     "name": "Jason Gerfen",

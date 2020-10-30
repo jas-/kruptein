@@ -125,7 +125,7 @@ not provided a random 128 byte salt is used.
 
 ASN.1 Encoding
 -------------------------
-When the `use_asn1` option is enabled an [ANS.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+When the `use_asn1` option is enabled an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
 value encoded with the format specifed with `encodeas` option is returned regardless of the cipher mode. This
 return type will ensure compatibility with various database engines and the character set encoding available
 for them.
@@ -157,6 +157,7 @@ etc. References used provided here:
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
 *   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
 *   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
+*   [X.697](https://www.itu.int/rec/T-REC-X.697-201710-I/en): ASN.1 encoding rules: Specifications of JavaScript Object Notation Encoding Rules (JER)
 
 **NIST:**
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
