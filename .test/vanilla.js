@@ -24,7 +24,7 @@ let secret = "squirrel", kruptein,
 
 const options = {
   use_scrypt: true,
-  use_asn1: true
+//  use_asn1: true
 };
 
 
