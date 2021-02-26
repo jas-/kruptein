@@ -24,12 +24,12 @@ Industry standards are used for the algorithm, hashing algorithm, key & IV sizes
 is pbkdf2, however use of the scrypt derivation function can be enabled.
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
-*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `binary`.
+*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
-*   `use_asn1`: (Optional) If enabled the resulting object is [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/) encoded. Default: false
+*   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
 Tests
 -----
