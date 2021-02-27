@@ -21,7 +21,8 @@
     "key derivation",
     "scrypt",
     "pbkdf2",
-    "security"
+    "security",
+    "asn.1"
   ],
   "author": {
     "name": "Jason Gerfen",
