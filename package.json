@@ -49,6 +49,6 @@
     "node": ">6"
   },
   "dependencies": {
-    "asn1.js-rfc2560": "^5.0.1"
+    "asn1.js": "^5.0.1"
   }
 }
