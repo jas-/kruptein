@@ -71,6 +71,9 @@ tests.forEach(test => {
 
     // Init kruptein with the test options
     beforeEach(done => {
+      // Fix for system boot and low entropy issues
+      //  REF: https://nodejs.org/docs/latest/api/crypto.html#crypto_crypto_randombytes_size_callback
+      this.timeout(5000);
       kruptein = require("../index.js")(test.options);
       done();
     });
