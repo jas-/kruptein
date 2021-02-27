@@ -71,9 +71,7 @@ tests.forEach(test => {
 
     // Init kruptein with the test options
     beforeEach(done => {
-      setTimeout(done, 50000);
       kruptein = require("../index.js")(test.options);
-//      done();
     });
 
 
