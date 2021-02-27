@@ -31,10 +31,6 @@ is pbkdf2, however use of the scrypt derivation function can be enabled.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
-Tests
------
-To test use `npm test` or `node .test/vanilla.js`
-
 Usage
 -----
 When selecting an algorithm from `crypto.getCiphers()` the
@@ -85,43 +81,11 @@ For any algorithm that supports authentication (AEAD), the object
 structure includes the `Authentication Tag` and the `Additional
 Authentication Data` attribute and value.
 
-When the `use_asn1` option is enabled, the result is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+When the `use_asn1` option is enabled (default is true), the result is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
 value using the `encodeas` value. While this is a more complex
-encoding option, it should help standardize the output for database storage.
+encoding option, it helps standardize & minimize the resulting
+ciphertext output.
 
-
-Non-Authenticated Ciphers
--------------------------
-For those ciphers that __DO NOT__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
-the following structure is returned.
-
-```json
-{
-  'hmac': "<binary format of calculated hmac>",
-  'ct': "<binary format of resulting ciphertext>",
-  'iv': "<buffer format of generated/supplied iv>",
-  'salt': "<buffer format of generated/supplied salt>"
-}
-```
-
-Authenticated Ciphers
----------------------
-For those ciphers that __DO__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
-the following structure is returned.
-
-__Important__: Note that in the event additional authentication data (aad) is
-not provided a random 128 byte salt is used.
-
-```json
-{
-  'hmac': "<binary format of calculated hmac>",
-  'ct': "<binary format of resulting ciphertext>",
-  'iv': "<buffer format of generated/supplied iv>",
-  'salt': "<buffer format of generated/supplied salt>",
-  'at': "<buffer format of generated authentication tag>",
-  'aad': "<buffer format of generated/supplied additional authentication data>"
-}
-```
 
 ASN.1 Encoding
 -------------------------
@@ -143,7 +107,47 @@ MIIBSQQYakpmVURhKzE1Qml1SGQyUGdKUnI2RFk9BCxtb1BmcFNPU3ZicXpBSHQzcTlpRTMvRkdrVlk3
 ```
 
 
+Non-Authenticated Ciphers
+-------------------------
+For those ciphers that __DO NOT__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
+the following structure is returned when the `use_asn1` option is disabled.
 
+```json
+{
+  'hmac': "<binary format of calculated hmac>",
+  'ct': "<binary format of resulting ciphertext>",
+  'iv': "<buffer format of generated/supplied iv>",
+  'salt': "<buffer format of generated/supplied salt>"
+}
+```
+
+Authenticated Ciphers
+---------------------
+For those ciphers that __DO__ support [authentication modes](https://csrc.nist.gov/projects/block-cipher-techniques/bcm/modes-develoment)
+the following structure is returned when the `use_asn1` option is disabled.
+
+__Important__: Note that in the event additional authentication data (aad) is
+not provided a random 128 byte salt is used.
+
+```json
+{
+  'hmac': "<binary format of calculated hmac>",
+  'ct': "<binary format of resulting ciphertext>",
+  'iv': "<buffer format of generated/supplied iv>",
+  'salt': "<buffer format of generated/supplied salt>",
+  'at': "<buffer format of generated authentication tag>",
+  'aad': "<buffer format of generated/supplied additional authentication data>"
+}
+```
+
+Test harness
+------------
+The included test harness, invoked with `npm test`, makes every
+attempt to trap and handle errors. Some of which come from side
+channel or possible malability of the resultant ciphertext.
+
+This can be seen within the `test/index.js` CI test harness under
+the HMAC, AT & AAD validation test cases.
 
 Cryptography References
 -----------------------
@@ -172,6 +176,7 @@ etc. References used provided here:
 *   [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard (AES)
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
+
 
 Contributing
 ------------
