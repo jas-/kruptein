@@ -36,19 +36,17 @@
     "url": "https://github.com/jas-/kruptein/issues"
   },
   "devDependencies": {
-    "codecov": "^3.7.2",
     "expect.js": "^0.3.1",
-    "mocha": "^7.1.1",
+    "mocha": "^8.3.0",
     "nyc": "^15.1.0"
   },
   "scripts": {
-    "cover": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "test": "nyc mocha test/*.js"
   },
   "engines": {
     "node": ">6"
   },
   "dependencies": {
-    "asn1.js": "^5.0.1"
+    "asn1.js": "^5.4.1"
   }
 }
