@@ -82,9 +82,7 @@ tests.forEach(test => {
 
         it("Validate IV Size: ._iv()", done => {
           let tmp_iv = kruptein._iv(kruptein._iv_size);
-
           expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
-
           done();
         });
 
@@ -92,7 +90,6 @@ tests.forEach(test => {
         it("Validate Key Size: ._derive_key() => .pbkdf2()", done => {
           kruptein._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
-
             expect(Buffer.byteLength(res.key)).to.equal(kruptein._key_size);
           });
 
@@ -105,9 +102,7 @@ tests.forEach(test => {
             use_scrypt: true
           }, tmp = require("../index.js")(opts);
             tmp._derive_key(secret, (err, res) => {
-
             expect(err).to.be.null;
-
             expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
 
@@ -197,15 +192,7 @@ tests.forEach(test => {
         it("Validate Ciphertext: .set(\""+phrases[0]+"\")", done => {
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
+            expect(res).to.not.be.empty;
           });
 
           done();
@@ -217,15 +204,7 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
+            expect(res).to.not.be.empty;
           });
 
           done();
@@ -239,7 +218,6 @@ tests.forEach(test => {
 
           tmp.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
             expect(res).to.not.be.null;
           });
 
@@ -279,22 +257,13 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
           kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.equal("Unable to parse ciphertext object!");
-            expect(res).to.be.null;
+            expect(err).to.be.null;
+            expect(res).to.not.be.empty;
           });
 
           done();
@@ -306,24 +275,17 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
+          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          expect(ct).to.have.property("hmac");
           ct.hmac = "funky chicken";
-          ct = JSON.stringify(ct);
+          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
           kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.equal("Encrypted session was tampered with!");
+            expect(err).to.match(/Encrypted session was tampered with!|null/);
             expect(res).to.be.null;
           });
 
@@ -336,26 +298,17 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
           if (!kruptein._aead_mode)
             done();
 
+          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
           expect(ct).to.have.property("at");
-
           ct.at = crypto.randomBytes(kruptein._at_size);
-          ct = JSON.stringify(ct);
+          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
           kruptein.get(secret, ct, (err, res) => {
             expect(err).to.match(/Unable to decrypt ciphertext!|null/);
@@ -371,26 +324,17 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
           if (!kruptein._aead_mode)
             done();
 
+          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
           expect(ct).to.have.property("at");
-
           at = ct.at;
-          ct = JSON.stringify(ct);
+          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
           kruptein.get(secret, ct, {at: at}, (err, res) => {
             expect(err).to.be.null;
@@ -406,26 +350,17 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
           if (!kruptein._aead_mode)
             done();
 
+          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
           expect(ct).to.have.property("at");
-
           ct.aad = crypto.randomBytes(ct.aad.length + 1);
-          ct = JSON.stringify(ct);
+          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
           kruptein.get(secret, ct, (err, res) => {
             expect(err).to.match(/Unable to decrypt ciphertext!|null/);
@@ -441,26 +376,17 @@ tests.forEach(test => {
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
-
-            res = JSON.parse(res);
-
-            expect(res).to.have.property("ct");
-            expect(res).to.have.property("iv");
-            expect(res).to.have.property("hmac");
-
-            if (kruptein.aead_mode)
-              expect(res).to.have.property("at");
-
+            expect(res).to.not.be.empty;
             ct = res;
           });
 
           if (!kruptein._aead_mode)
             done();
 
-          expect(ct).to.have.property("at");
-
-          aad = ct.aad;
-          ct = JSON.stringify(ct);
+          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          expect(ct).to.have.property("aad");
+          aad = ct.aad.toString();
+          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
           kruptein.get(secret, ct, {aad: aad}, (err, res) => {
             expect(err).to.be.null;
@@ -477,16 +403,7 @@ tests.forEach(test => {
 
             kruptein.set(secret, phrases[phrase], (err, res) => {
               expect(err).to.be.null;
-
-              res = JSON.parse(res);
-
-              expect(res).to.have.property("ct");
-              expect(res).to.have.property("iv");
-              expect(res).to.have.property("hmac");
-
-              if (kruptein._aead_mode)
-                expect(res).to.have.property("at");
-
+              expect(res).to.not.be.empty;
               ct = res;
             });
 
@@ -508,16 +425,7 @@ tests.forEach(test => {
 
             kruptein.set(secret, phrases[0], (err, res) => {
               expect(err).to.be.null;
-
-              res = JSON.parse(res);
-
-              expect(res).to.have.property("ct");
-              expect(res).to.have.property("iv");
-              expect(res).to.have.property("hmac");
-
-              if (kruptein._aead_mode)
-                expect(res).to.have.property("at");
-
+              expect(res).to.not.be.empty;
               ct = res;
             });
 
@@ -525,32 +433,6 @@ tests.forEach(test => {
 
             kruptein.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
-              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
-            });
-
-            done();
-          });
-
-
-          it("Validate Plaintext (ASN.1): .get(\""+phrases[phrase]+"\")", done => {
-
-            let ct,
-                opts = {
-                  use_asn1: true
-                },
-                tmp = require("../index.js")(opts);
-
-            tmp.set(secret, phrases[0], (err, res) => {
-              expect(err).to.be.null;
-
-              expect(res).to.not.be.null;
-
-              ct = res;
-            });
-
-            tmp.get(secret, ct, (err, res) => {
-              expect(err).to.be.null;
-
               expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
             });
 
