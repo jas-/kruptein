@@ -72,6 +72,7 @@ tests.forEach(test => {
     // Init kruptein with the test options
     beforeEach(done => {
       kruptein = require("../index.js")(test.options);
+      done();
     });
 
 
