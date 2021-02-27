@@ -70,7 +70,8 @@ tests.forEach(test => {
   describe("kruptein: "+test.title, () => {
 
     // Init kruptein with the test options
-    beforeEach(done => {
+    beforeEach(function(done) {
+      time.timeout(5000);
       kruptein = require("../index.js")(test.options);
       done();
     });
