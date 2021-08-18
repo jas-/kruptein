@@ -87,7 +87,7 @@ ciphertext output.
 
 ASN.1 Encoding
 -------------------------
-When the `use_asn1` option is enabled an [ANS.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+When the `use_asn1` option is enabled an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
 value encoded with the format specifed with `encodeas` option is returned regardless of the cipher mode. This
 return type will ensure compatibility with various database engines and the character set encoding available
 for them.
