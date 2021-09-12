@@ -41,11 +41,6 @@ hashes = crypto.getHashes().filter(hash => {
     return hash;
 });
 
-// Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha512"];
-encoding=["base64"];
-
 
 for (let cipher in ciphers) {
   options.algorithm = ciphers[cipher];

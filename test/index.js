@@ -41,9 +41,9 @@ hashes = crypto.getHashes().filter(hash => {
 
 
 // Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha512"];
-encoding=["base64"];
+//ciphers=["aes-256-gcm"];
+//hashes=["sha512"];
+//encoding=["base64"];
 
 
 // Build tests array
@@ -212,9 +212,9 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Ciphertext: (ASN.1) .set(\""+phrases[0]+"\")", done => {
+        it("Validate Ciphertext: (Non-ASN.1) .set(\""+phrases[0]+"\")", done => {
           let opts = {
-            use_asn1: true
+            use_asn1: false
           }, tmp = require("../index.js")(opts);
 
           tmp.set(secret, phrases[0], (err, res) => {
@@ -408,7 +408,8 @@ tests.forEach(test => {
               ct = res;
             });
 
-            ct = JSON.stringify(ct);
+            if (typeof ct === "object")
+              ct = JSON.stringify(ct)
 
             kruptein.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
@@ -430,7 +431,8 @@ tests.forEach(test => {
               ct = res;
             });
 
-            ct = JSON.stringify(ct);
+            if (typeof ct === "object")
+              ct = JSON.stringify(ct)
 
             kruptein.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
