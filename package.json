@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -45,7 +45,7 @@
     "test": "nyc mocha test/*.js"
   },
   "engines": {
-    "node": ">6"
+    "node": ">8"
   },
   "dependencies": {
     "asn1.js": "^5.4.1"
