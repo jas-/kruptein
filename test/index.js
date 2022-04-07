@@ -29,7 +29,7 @@ let kruptein, hmac, secret = "squirrel",
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && cipher.match(/256/i) && !cipher.match(/hmac|wrap|ccm|ecb|ocb2/))
+  if (cipher.match(/^aes/i) && cipher.match(/256|192/i) && !cipher.match(/hmac|wrap|ccm|ecb|ofb/))
     return cipher;
 });
 
@@ -39,11 +39,6 @@ hashes = crypto.getHashes().filter(hash => {
     return hash;
 });
 
-
-// Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha512"];
-encoding=["base64"];
 
 
 // Build tests array
@@ -71,7 +66,7 @@ tests.forEach(test => {
 
     // Init kruptein with the test options
     beforeEach(function(done) {
-      this.timeout(5000);
+      this.timeout(50000);
       kruptein = require("../index.js")(test.options);
       done();
     });
