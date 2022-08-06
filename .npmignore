@@ -1,16 +1,14 @@
 .npmignore
-
 History.md
 Makefile
 Readme.md
-
 examples/
 support/
 test/
 coverage/
-
 .c9/
 .git/
 .travis.yml
 coverage.lcov
 .nyc_output/
+.github/workflows/node.js.yml
