@@ -5,6 +5,11 @@ crypto; from `kruptein` to hide or conceal.
 [![npm](https://img.shields.io/npm/v/kruptein.svg)](https://npmjs.com/package/kruptein)
 ![Downloads](https://img.shields.io/npm/dm/kruptein.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
+![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
+
+Sandbox
+-------
+To test the module feel free to use the [sandbox](https://codesandbox.io/p/sandbox/kruptein-test-1z9zgd?file=%2Findex.js)
 
 Install
 -------
@@ -39,7 +44,7 @@ aren't what you would like; see the `options` section above.
 
 Create ciphertext from plaintext
 -----------------
-To create a new ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvmtrnt000ifugj044v9bjq?project=1z9zgd) to encrypt plaintext.
+To create a new ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvsajy7000hfqgja6e28q8c?project=1z9zgd) to encrypt plaintext.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
