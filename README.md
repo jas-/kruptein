@@ -39,7 +39,7 @@ aren't what you would like; see the `options` section above.
 
 Create ciphertext from plaintext
 -----------------
-To create a new ciphertext object.
+To create a new ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvmtrnt000ifugj044v9bjq?project=1z9zgd) to encrypt plaintext.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
@@ -55,7 +55,7 @@ kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct
 
 Get plaintext from ciphertext
 ------------------
-To retrieve plaintext from a ciphertext object.
+To retrieve plaintext from a ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvn1j3f0007fqgjgqzle28o?project=1z9zgd) to decrypt ciphertext.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
@@ -145,6 +145,9 @@ channel or possible malability of the resultant ciphertext.
 
 This can be seen within the `test/index.js` CI test harness under
 the HMAC, AT & AAD validation test cases.
+
+An online playgound for experimenting with the module can also be
+found [here](https://codesandbox.io/p/devtool/task-log/cldvmxl6k0003fqgj0dc2es4x?project=1z9zgd)
 
 Cryptography References
 -----------------------
