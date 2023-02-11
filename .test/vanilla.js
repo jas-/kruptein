@@ -67,7 +67,7 @@ for (let cipher in ciphers) {
           ct = res;
         });
 
-        console.log(JSON.stringify(ct));
+        console.log(ct);
 
         kruptein.get(secret, ct, (err, res) => {
           if (err)
