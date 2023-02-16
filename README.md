@@ -1,4 +1,4 @@
-kruptein
+kruptein 🐿️
 ========
 crypto; from `kruptein` to hide or conceal.
 
