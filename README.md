@@ -9,7 +9,7 @@ crypto; from `kruptein` to hide or conceal.
 
 Sandbox
 -------
-To test the module feel free to use the [sandbox](https://codesandbox.io/p/sandbox/kruptein-test-1z9zgd?file=%2Findex.js)
+To test the module feel free to use the [sandbox](https://codesandbox.io/p/sandbox/kruptein-test-1z9zgd)
 
 Install
 -------
