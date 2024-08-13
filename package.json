@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "expect.js": "0.3.1",
-    "mocha": "10.2.0",
-    "nyc": "15.1.0"
+    "mocha": "10.7.3",
+    "nyc": "17.0.0"
   },
   "scripts": {
     "test": "nyc mocha test/*.js"

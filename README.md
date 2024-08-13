@@ -1,4 +1,4 @@
-kruptein 🐿️
+kruptein
 ========
 crypto; from `kruptein` to hide or conceal.
 
@@ -25,7 +25,7 @@ Options
 Industry standards are used for the algorithm, hashing algorithm, key & IV sizes. The default key derivation
 is pbkdf2, however use of the scrypt derivation function can be enabled.
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha512`.
+*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
 *   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
@@ -141,4 +141,4 @@ License
 -------
 This software is licensed under the [MIT License](https://github.com/jas-/kruptein/blob/master/LICENSE).
 
-Copyright Jason Gerfen, 2019 to 2023.
+Copyright Jason Gerfen, 2019 to 2024.
