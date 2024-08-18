@@ -1,6 +1,6 @@
 kruptein
 ========
-crypto; from `kruptein` to hide or conceal.
+crypto (krip-toh); from `kruptein` to hide or conceal.
 
 [![npm](https://img.shields.io/npm/v/kruptein.svg)](https://npmjs.com/package/kruptein)
 ![Downloads](https://img.shields.io/npm/dm/kruptein.svg)
