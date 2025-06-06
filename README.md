@@ -9,7 +9,7 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 
 Sandbox
 -------
-To test the module feel free to use the [sandbox](https://codesandbox.io/p/sandbox/kruptein-test-1z9zgd)
+Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
 
 Install
 -------
@@ -22,8 +22,9 @@ Methods
 
 Options
 -------
-Industry standards are used for the algorithm, hashing algorithm, key & IV sizes. The default key derivation
-is pbkdf2, however use of the scrypt derivation function can be enabled.
+Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
+The default key derivation is pbkdf2, however use of the scrypt derivation function can be enabled.
+
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
 *   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
@@ -44,7 +45,7 @@ aren't what you would like; see the `options` section above.
 
 Create ciphertext from plaintext
 -----------------
-To create a new ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvsajy7000hfqgja6e28q8c?project=1z9zgd) to encrypt plaintext.
+An example of creating a new ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
@@ -60,7 +61,7 @@ kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct
 
 Get plaintext from ciphertext
 ------------------
-To retrieve plaintext from a ciphertext object. Run [example](https://codesandbox.io/p/devtool/task-log/cldvn1j3f0007fqgjgqzle28o?project=1z9zgd) to decrypt ciphertext.
+An example of retrieveing plaintext from a ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
@@ -83,10 +84,11 @@ For any algorithm that supports authentication (AEAD), the object
 structure includes the `Authentication Tag` and the `Additional
 Authentication Data` attribute and value.
 
-When the `use_asn1` option is enabled (default is true), the result is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
+When the `use_asn1` option is enabled (default is true), the result
+is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
 value using the `encodeas` value. While this is a more complex
-encoding option, it helps standardize & minimize the resulting
-ciphertext output.
+encoding option, it helps standardize & minimize the size of the
+resulting ciphertext output.
 
 
 Test harness
@@ -98,8 +100,7 @@ channel or possible malability of the resultant ciphertext.
 This can be seen within the `test/index.js` CI test harness under
 the HMAC, AT & AAD validation test cases.
 
-An online playgound for experimenting with the module can also be
-found [here](https://codesandbox.io/p/devtool/task-log/cldvmxl6k0003fqgj0dc2es4x?project=1z9zgd)
+An online playgound for experimenting is also available. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
 
 Cryptography References
 -----------------------
@@ -141,4 +142,4 @@ License
 -------
 This software is licensed under the [MIT License](https://github.com/jas-/kruptein/blob/master/LICENSE).
 
-Copyright Jason Gerfen, 2019 to 2024.
+Copyright Jason Gerfen, 2019.
