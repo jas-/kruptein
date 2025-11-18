@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 
-let secret = "squirrel", kruptein,
+let secret = "S3cre+_Squ1rr3l", kruptein,
     ciphers = [], hashes = [],
     encoding = ['binary', 'hex', 'base64'],
     phrases = [

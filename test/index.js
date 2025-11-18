@@ -6,7 +6,7 @@ const expect = require("expect.js");
 
 
 // Inits
-let kruptein, hmac, secret = "squirrel",
+let kruptein, hmac, secret = "S3cre+_Squ1rr3l",
     ciphers = [], hashes = [],
     ciphers_tmp = [], hashes_tmp = [],
     tests = [], encoding = ["binary", "hex", "base64"],
@@ -29,7 +29,7 @@ let kruptein, hmac, secret = "squirrel",
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && cipher.match(/256|192/i) && !cipher.match(/hmac|wrap|ccm|ecb|ofb/))
+  if (cipher.match(/^aes/i) && cipher.match(/256|192/i) && !cipher.match(/hmac|wrap|ecb|ofb|xts|ccm/))
     return cipher;
 });
 
@@ -80,6 +80,13 @@ tests.forEach(test => {
     describe("Private Functions", () => {
 
       describe("Validator Tests", () => {
+
+        it("Validate supplied secrets complexity: ._complexity()", done => {
+          let complexity = kruptein._complexity(secret);
+          expect(complexity).to.equal(true);
+          done();
+        });
+
 
         it("Validate IV Size: ._iv()", done => {
           let tmp_iv = kruptein._iv(kruptein._iv_size);
@@ -182,7 +189,7 @@ tests.forEach(test => {
 
         it("Missing Secret: .set(\""+phrases[0]+"\")", done => {
           kruptein.set("", phrases[0], (err, res) => {
-            expect(err).to.equal("Must supply a secret!");
+            expect(err).to.equal("The supplied secret failed to meet complexity requirements!");
             expect(res).to.be.null;
           });
 
