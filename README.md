@@ -49,9 +49,9 @@ An example of creating a new ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let secret = "squirrel";
+let secret = "A$tr0nGp@$S";
 
-kruptein.set(secret, "Operation mincemeat was an example of deception", (err, ct) => {
+kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
   if (err)
     throw err;
 
@@ -65,7 +65,7 @@ An example of retrieveing plaintext from a ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let ciphertext, secret = "squirrel";
+let ciphertext, secret = "A$tr0nGp@$S";
 
 kruptein.get(secret, ciphertext, (err, pt) => {
   if (err)
