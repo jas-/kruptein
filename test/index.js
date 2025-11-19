@@ -135,6 +135,8 @@ tests.forEach(test => {
           let tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
+console.error(err)
+console.error(res)
             expect(err).to.be.null;
             expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
@@ -187,16 +189,14 @@ tests.forEach(test => {
 
           let opts = {
             use_argon2: true
-          }, tmp = require("../index.js")(opts);
+          };
+          let tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
-            if (typeof crypto.argon2Sync === "function") {
-              expect(err).to.equal("Unable to derive key!");
-              expect(res).to.equal.null;
-            } else {
-              expect(err).to.equal.null;
-              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-            }
+console.error(err)
+console.error(res)
+            expect(err).to.equal.null;
+            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
 
           done();
