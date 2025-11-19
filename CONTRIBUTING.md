@@ -11,18 +11,20 @@ Fork the project [on GitHub](https://github.com/jas-/kruptein) and check out you
 copy locally.
 
 ```text
-$ git clone git@github.com:username/kruptein.git
+$ git clone https://github.com/jas-/kruptein
 $ cd node
-$ git remote add upstream git://github.com/jas-/kruptein.git
+$ git remote add upstream https://github.com/jas-/kruptein
 ```
 
 Keep your local fork update to date using the `upstream` branch indicated in 
 the above commands.
 
+
 Choose branch
 -------------
 For developing new features and bug fixes, the `master` branch should be pulled
 and built upon.
+
 
 Step 2: Branch
 --------------
@@ -34,6 +36,7 @@ $ git checkout -b my-feature-branch -t origin/master
 
 The branch name should be descriptive about the fixes/features it will
 address.
+
 
 Step 3: Commit
 --------------
@@ -72,6 +75,7 @@ run `git shortlog` or `git log --oneline`.
 Check the output of `git log --oneline files_that_you_changed` to find out
 what subsystem (or subsystems) your changes touch.
 
+
 Step 4: Rebase
 --------------
 Use `git rebase` (not `git merge`) to sync your work from time to time (as
@@ -82,6 +86,7 @@ $ git fetch upstream
 $ git rebase upstream/master
 ```
 
+
 Step 5: Test
 ------------
 Bug fixes and features **should come with tests**.  Add your tests in the
@@ -91,6 +96,7 @@ structured.
 ```text
 $ npm test
 ```
+
 
 Step 6: Push
 ------------

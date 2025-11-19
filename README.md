@@ -10,16 +10,21 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 
 Sandbox
 -------
+This started as an exercise in understanding, now has useful functionality.
+
 Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
+
 
 Install
 -------
 To install `npm install kruptein`
 
+
 Methods
 -------
 *   `.set(secret, plaintext, [aad], callback)`
 *   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
+
 
 Options
 -------
@@ -36,6 +41,7 @@ The default key derivation is pbkdf2, however use of the scrypt derivation funct
 *   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
+
 Usage
 -----
 When selecting an algorithm from `crypto.getCiphers()` the
@@ -44,6 +50,7 @@ easy.
 
 You can always define your own if the defaults per algorithm and mode
 aren't what you would like; see the `options` section above.
+
 
 Create ciphertext from plaintext
 -----------------
@@ -103,7 +110,7 @@ This can be seen within the `test/index.js` CI test harness under
 the HMAC, AT & AAD validation test cases.
 
 
-Cryptography References
+References
 -----------------------
 This module conforms to industry recommendations regarding algorithm type,
 mode, key size, iv size & implementation, digests, key derivation & management
@@ -133,12 +140,14 @@ etc. References used provided here:
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
 
+
 Contributing
 ------------
 Contributions are welcome & appreciated!
 
 Refer to the [contributing document](https://github.com/jas-/kruptein/blob/master/CONTRIBUTING.md)
 to help facilitate pull requests.
+
 
 License
 -------
