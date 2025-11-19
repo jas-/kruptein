@@ -41,9 +41,9 @@ hashes = crypto.getHashes().filter(hash => {
 
 
 // Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha384"];
-encoding=["base64"];
+//ciphers=["aes-256-gcm"];
+//hashes=["sha384"];
+//encoding=["base64"];
 
 
 // Build tests array
@@ -116,6 +116,18 @@ tests.forEach(test => {
 
           done();
         });
+
+        it("Validate Key Size: ._derive_key() => .argon2()", done => {
+          let opts = {
+            use_argon2: true
+          }, tmp = require("../index.js")(opts);
+            tmp._derive_key(secret, (err, res) => {
+              expect(err).to.be.null;
+              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+            });
+
+          done();
+        });
       });
 
 
@@ -155,6 +167,19 @@ tests.forEach(test => {
           done();
         });
 
+
+        it("Key Derivation: ._derive_key() => .argon2(\""+secret+"\")", done => {
+          let opts = {
+            use_argon2: true
+          }, tmp = require("../index.js")(opts);
+
+          tmp._derive_key(secret, (err, res) => {
+            expect(err).to.equal.null;
+            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+          });
+
+          done();
+        });
 
         it("Digest Validation: ._digest(\""+phrases[0]+"\")", done => {
           kruptein._digest(test.options.secret, phrases[0], "w00t",
@@ -197,7 +222,7 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Ciphertext: .set(\""+phrases[0]+"\")", done => {
+        it("Validate Ciphertext (pbkdf2): .set(\""+phrases[0]+"\")", done => {
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
             expect(res).to.not.be.empty;
@@ -207,8 +232,20 @@ tests.forEach(test => {
         });
 
 
-        it("Validate Ciphertext: (scrypt) .set(\""+phrases[0]+"\")", done => {
+        it("Validate Ciphertext (scrypt): .set(\""+phrases[0]+"\")", done => {
           kruptein._use_scrypt = true;
+
+          kruptein.set(secret, phrases[0], (err, res) => {
+            expect(err).to.be.null;
+            expect(res).to.not.be.empty;
+          });
+
+          done();
+        });
+
+
+        it("Validate Ciphertext (argon2): .set(\""+phrases[0]+"\")", done => {
+          kruptein._use_argon2 = true;
 
           kruptein.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
@@ -406,7 +443,7 @@ tests.forEach(test => {
 
 
         for (let phrase in phrases) {
-          it("Validate Plaintext: .get(\""+phrases[phrase]+"\")", done => {
+          it("Validate Plaintext (pbkdf2): .get(\""+phrases[phrase]+"\")", done => {
             let ct;
 
             kruptein.set(secret, phrases[phrase], (err, res) => {
@@ -431,6 +468,29 @@ tests.forEach(test => {
             let ct;
 
             kruptein._use_scrypt = true;
+
+            kruptein.set(secret, phrases[0], (err, res) => {
+              expect(err).to.be.null;
+              expect(res).to.not.be.empty;
+              ct = res;
+            });
+
+            if (typeof ct === "object")
+              ct = JSON.stringify(ct)
+
+            kruptein.get(secret, ct, (err, res) => {
+              expect(err).to.be.null;
+              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
+            });
+
+            done();
+          });
+
+
+          it("Validate Plaintext (argon2): .get(\""+phrases[phrase]+"\")", done => {
+            let ct;
+
+            kruptein._use_argon2 = true;
 
             kruptein.set(secret, phrases[0], (err, res) => {
               expect(err).to.be.null;

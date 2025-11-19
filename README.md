@@ -7,6 +7,10 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
+While this started out as an exercise in understanding, it is now a solution that helps ensure best practices for all aspects of
+symmetric encryption is performed. Handles key derivation, eliminates weak algorithms, key sizes and modes, handles tampering and
+supports encoding types and languages (unicode).
+
 Sandbox
 -------
 Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
@@ -32,6 +36,7 @@ The default key derivation is pbkdf2, however use of the scrypt derivation funct
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
+*   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
 Usage
@@ -100,7 +105,6 @@ channel or possible malability of the resultant ciphertext.
 This can be seen within the `test/index.js` CI test harness under
 the HMAC, AT & AAD validation test cases.
 
-An online playgound for experimenting is also available. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
 
 Cryptography References
 -----------------------
@@ -114,6 +118,7 @@ etc. References used provided here:
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
 *   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
 *   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
+*   [RFC 9106](https://datatracker.ietf.org/doc/html/rfc9106): Argon2 Memory-Hard Function for Password Hashing and Proof-of-Work Applications
 *   [X.697](https://www.itu.int/rec/T-REC-X.697-201710-I/en): ASN.1 encoding rules: Specifications of JavaScript Object Notation Encoding Rules (JER)
 
 **NIST:**
