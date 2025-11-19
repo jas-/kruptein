@@ -135,8 +135,6 @@ tests.forEach(test => {
           let tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
-console.error(err)
-console.error(res)
             expect(err).to.be.null;
             expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
@@ -193,8 +191,6 @@ console.error(res)
           let tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
-console.error(err)
-console.error(res)
             expect(err).to.equal.null;
             expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
@@ -259,9 +255,13 @@ console.error(res)
             this.skip();
           }
 
-          kruptein._use_scrypt = true;
+          //kruptein._use_scrypt = true;
+          let opts = {
+            use_scrypt: true
+          };
+          let tmp = require("../index.js")(opts);
 
-          kruptein.set(secret, phrases[0], (err, res) => {
+          tmp.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
             expect(res).to.not.be.empty;
           });
@@ -275,9 +275,13 @@ console.error(res)
             this.skip();
           }
 
-          kruptein._use_argon2 = true;
+          //kruptein._use_argon2 = true;
+          let opts = {
+            use_argon2: true
+          };
+          let tmp = require("../index.js")(opts);
 
-          kruptein.set(secret, phrases[0], (err, res) => {
+          tmp.set(secret, phrases[0], (err, res) => {
             expect(err).to.be.null;
             expect(res).to.not.be.empty;
           });
@@ -501,9 +505,13 @@ console.error(res)
 
             let ct;
 
-            kruptein._use_scrypt = true;
+            //kruptein._use_scrypt = true;
+            let opts = {
+              use_scrypt: true
+            };
+            let tmp = require("../index.js")(opts);
 
-            kruptein.set(secret, phrases[0], (err, res) => {
+            tmp.set(secret, phrases[0], (err, res) => {
               expect(err).to.be.null;
               expect(res).to.not.be.empty;
               ct = res;
@@ -512,7 +520,7 @@ console.error(res)
             if (typeof ct === "object")
               ct = JSON.stringify(ct)
 
-            kruptein.get(secret, ct, (err, res) => {
+            tmp.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
               expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
             });
@@ -528,9 +536,13 @@ console.error(res)
 
             let ct;
 
-            kruptein._use_argon2 = true;
+            //kruptein._use_argon2 = true;
+            let opts = {
+              use_argon2: true
+            };
+            let tmp = require("../index.js")(opts);
 
-            kruptein.set(secret, phrases[0], (err, res) => {
+            tmp.set(secret, phrases[0], (err, res) => {
               expect(err).to.be.null;
               expect(res).to.not.be.empty;
               ct = res;
@@ -539,7 +551,7 @@ console.error(res)
             if (typeof ct === "object")
               ct = JSON.stringify(ct)
 
-            kruptein.get(secret, ct, (err, res) => {
+            tmp.get(secret, ct, (err, res) => {
               expect(err).to.be.null;
               expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
             });
