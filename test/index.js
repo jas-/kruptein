@@ -127,11 +127,11 @@ tests.forEach(test => {
 
           tmp._derive_key(secret, (err, res) => {
             if (typeof crypto.argon2Sync === "function") {
-              expect(err).to.be.null;
-              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-            } else {
               expect(err).to.equal("Unable to derive key!");
               expect(res).to.equal.null;
+            } else {
+              expect(err).to.be.null;
+              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
             }
           });
 
