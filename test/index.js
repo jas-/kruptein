@@ -108,8 +108,10 @@ tests.forEach(test => {
         it("Validate Key Size: ._derive_key() => .scrypt()", done => {
           let opts = {
             use_scrypt: true
-          }, tmp = require("../index.js")(opts);
-            tmp._derive_key(secret, (err, res) => {
+          };
+          let tmp = require("../index.js")(opts);
+
+          tmp._derive_key(secret, (err, res) => {
             expect(err).to.be.null;
             expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
           });
@@ -120,11 +122,13 @@ tests.forEach(test => {
         it("Validate Key Size: ._derive_key() => .argon2()", done => {
           let opts = {
             use_argon2: true
-          }, tmp = require("../index.js")(opts);
-            tmp._derive_key(secret, (err, res) => {
-              expect(err).to.be.null;
-              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-            });
+          };
+          let tmp = require("../index.js")(opts);
+
+          tmp._derive_key(secret, (err, res) => {
+            expect(err).to.be.null;
+            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+          });
 
           done();
         });
@@ -136,7 +140,8 @@ tests.forEach(test => {
         it("Key Derivation: ._derive_key() => .pbkdf2(\""+secret+"\")", done => {
           let opts = {
             hashing: "w00t"
-          }, tmp = require("../index.js")(opts);
+          };
+          let tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
             expect(err).to.equal("Unable to derive key!");
@@ -150,9 +155,11 @@ tests.forEach(test => {
         it("Key Derivation: ._derive_key() => .scrypt(\""+secret+"\")", done => {
           let opts = {
             use_scrypt: true
-          }, scrypt_limits = {
+          };
+          let scrypt_limits = {
             N: 2 ** 16, p: 1, r: 1
-          }, tmp = require("../index.js")(opts);
+          };
+          let tmp = require("../index.js")(opts);
 
           tmp._derive_key({secret: secret, opts: scrypt_limits}, (err, res) => {
             if (typeof crypto.scryptSync === "function") {
@@ -174,8 +181,13 @@ tests.forEach(test => {
           }, tmp = require("../index.js")(opts);
 
           tmp._derive_key(secret, (err, res) => {
-            expect(err).to.equal.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+            if (typeof crypto.argon2Sync === "function") {
+              expect(err).to.equal("Unable to derive key!");
+              expect(res).to.equal.null;
+            } else {
+              expect(err).to.equal.null;
+              expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
+            }
           });
 
           done();
