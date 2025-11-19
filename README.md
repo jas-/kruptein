@@ -7,9 +7,6 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
-While this started out as an exercise in understanding, it is now a solution that helps ensure best practices for all aspects of
-symmetric encryption is performed. Handles key derivation, eliminates weak algorithms, key sizes and modes, handles tampering and
-supports encoding types and languages (unicode).
 
 Sandbox
 -------
