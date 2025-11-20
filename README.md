@@ -29,7 +29,7 @@ Methods
 Options
 -------
 Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
-The default key derivation is pbkdf2, however use of the scrypt derivation function can be enabled.
+The default key derivation function is pbkdf2, however use of the scrypt or argon2 can be used as well.
 
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
