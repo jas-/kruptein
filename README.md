@@ -40,6 +40,7 @@ The default key derivation function is pbkdf2, however use of the scrypt or argo
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
 *   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
+*   `use_safe_timing`: (Optional) In some cases, decryption fails due to tampering validation using `crypto.timingSafeEqual`.
 
 
 Usage

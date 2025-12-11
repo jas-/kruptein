@@ -56,7 +56,9 @@ ciphers.forEach(cipher => {
           "options": {
             "algorithm": cipher,
             "hashing": hash,
-            "encodeas": encode
+            "encodeas": encode,
+            "use_asn1": false,
+            "use_safe_timing": true
           }
         }
       );
@@ -358,10 +360,20 @@ tests.forEach(test => {
             ct = res;
           });
 
-          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          } else {
+            ct = JSON.parse(ct);
+          }
+  
           expect(ct).to.have.property("hmac");
           ct.hmac = "funky chicken";
-          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+  
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+          } else {
+            ct = JSON.stringify(ct);
+          }
 
           kruptein.get(secret, ct, (err, res) => {
             expect(err).to.match(/Encrypted session was tampered with!|null/);
@@ -384,10 +396,20 @@ tests.forEach(test => {
           if (!kruptein._aead_mode)
             done();
 
-          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          } else {
+            ct = JSON.parse(ct);
+          }
+
           expect(ct).to.have.property("at");
           ct.at = crypto.randomBytes(kruptein._at_size);
-          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+          } else {
+            ct = JSON.stringify(ct);
+          }
 
           kruptein.get(secret, ct, (err, res) => {
             expect(err).to.match(/Unable to decrypt ciphertext!|null/);
@@ -410,10 +432,20 @@ tests.forEach(test => {
           if (!kruptein._aead_mode)
             done();
 
-          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          } else {
+            ct = JSON.parse(ct);
+          }
+
           expect(ct).to.have.property("at");
           at = ct.at;
-          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+          } else {
+            ct = JSON.stringify(ct);
+          }
 
           kruptein.get(secret, ct, {at: at}, (err, res) => {
             expect(err).to.be.null;
@@ -436,10 +468,20 @@ tests.forEach(test => {
           if (!kruptein._aead_mode)
             done();
 
-          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          } else {
+            ct = JSON.parse(ct);
+          }
+
           expect(ct).to.have.property("at");
           ct.aad = crypto.randomBytes(ct.aad.length + 1);
-          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+          } else {
+            ct = JSON.stringify(ct);
+          }
 
           kruptein.get(secret, ct, (err, res) => {
             expect(err).to.match(/Unable to decrypt ciphertext!|null/);
@@ -462,11 +504,21 @@ tests.forEach(test => {
           if (!kruptein._aead_mode)
             done();
 
-          ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
+          } else {
+            ct = JSON.parse(ct);
+          }
+
           expect(ct).to.have.property("aad");
           aad = ct.aad.toString();
-          ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
 
+          if (kruptein._use_asn1) {
+            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
+          } else {
+            ct = JSON.stringify(ct);
+          }
+          
           kruptein.get(secret, ct, {aad: aad}, (err, res) => {
             expect(err).to.be.null;
             expect(res.replace(/\"/g, "")).to.equal(phrases[0]);

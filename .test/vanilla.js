@@ -5,6 +5,7 @@ const crypto = require('crypto');
 let secret = "S3cre+_Squ1rr3l", kruptein,
     ciphers = [], hashes = [],
     encoding = ['binary', 'hex', 'base64'],
+    key_derivation = ['scrypt', 'argon2'],
     phrases = [
       "Secret Squirrel",
       "écureuil secret",
@@ -23,8 +24,8 @@ let secret = "S3cre+_Squ1rr3l", kruptein,
 
 
 const options = {
-  use_scrypt: true,
-  use_asn1: true
+  use_asn1: true,
+  use_safe_timing: true
 };
 
 
@@ -40,6 +41,13 @@ hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
+
+
+// Because we want a quick test
+//ciphers=["aes-256-gcm"];
+//hashes=["sha384"];
+//encoding=["base64"];
+
 
 
 for (let cipher in ciphers) {
