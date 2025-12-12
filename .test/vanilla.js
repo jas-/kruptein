@@ -5,7 +5,7 @@ const crypto = require('crypto');
 let secret = "S3cre+_Squ1rr3l", kruptein,
     ciphers = [], hashes = [],
     encoding = ['binary', 'hex', 'base64'],
-    key_derivation = ['scrypt', 'argon2'],
+    key_derivation = ['default', 'scrypt', 'argon2'],
     phrases = [
       "Secret Squirrel",
       "écureuil secret",
@@ -24,8 +24,7 @@ let secret = "S3cre+_Squ1rr3l", kruptein,
 
 
 const options = {
-  use_asn1: true,
-  use_safe_timing: true
+  use_asn1: true
 };
 
 
@@ -59,33 +58,44 @@ for (let cipher in ciphers) {
     for (let enc in encoding) {
       options.encodeas = encoding[enc];
 
-      kruptein = require("../index.js")(options);
+      for (let kd in key_derivation) {
 
-      console.log('kruptein: { algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
-      let ct, pt;
+        // Don't do this in production! `eval()` is not safe!!
+        if (key_derivation[kd] != "default") {
+          options.use_argon2 = false;
+          options.use_scrypt = false;
+          eval("options.use_" + key_derivation[kd] + " = true");
+        }
 
-      for (let phrase in phrases) {
+        kruptein = require("../index.js")(options);
 
-        console.log(phrases[phrase])
+        console.log('kruptein: { key_derivation: "'+key_derivation[kd]+'", algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
 
-        kruptein.set(secret, phrases[phrase], (err, res) => {
-          if (err)
-            console.log(err);
+        let ct, pt;
 
-          ct = res;
-        });
+        for (let phrase in phrases) {
 
-        console.log(ct);
+          console.log(phrases[phrase])
 
-        kruptein.get(secret, ct, (err, res) => {
-          if (err)
-            console.log(err);
+          kruptein.set(secret, phrases[phrase], (err, res) => {
+            if (err)
+              console.log(err);
 
-          pt = res;
-        });
+            ct = res;
+          });
 
-        console.log(pt);
-        console.log("");
+          console.log(ct);
+
+          kruptein.get(secret, ct, (err, res) => {
+            if (err)
+              console.log(err);
+
+            pt = res;
+          });
+
+          console.log(pt);
+          console.log("");
+        }
       }
     }
   }

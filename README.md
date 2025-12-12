@@ -1,3 +1,4 @@
+
 kruptein
 ========
 crypto (krip-toh); from `kruptein` to hide or conceal.
@@ -29,7 +30,7 @@ Methods
 Options
 -------
 Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
-The default key derivation function is pbkdf2, however use of the scrypt or argon2 can be used as well.
+The default key derivation function is `pbkdf2`, however use of the `scrypt` or `argon2` can be used as well.
 
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
@@ -40,7 +41,6 @@ The default key derivation function is pbkdf2, however use of the scrypt or argo
 *   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
 *   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
-*   `use_safe_timing`: (Optional) In some cases, decryption fails due to tampering validation using `crypto.timingSafeEqual`.
 
 
 Usage
@@ -52,6 +52,8 @@ easy.
 You can always define your own if the defaults per algorithm and mode
 aren't what you would like; see the `options` section above.
 
+The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
+
 
 Create ciphertext from plaintext
 -----------------
@@ -59,7 +61,7 @@ An example of creating a new ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let secret = "A$tr0nGp@$S";
+let secret = "S3cre+_Squ1rr3l";
 
 kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
   if (err)
@@ -69,13 +71,14 @@ kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
 });
 ```
 
+
 Get plaintext from ciphertext
 ------------------
 An example of retrieveing plaintext from a ciphertext object.
 
 ```javascript
 const kruptein = require("kruptein")(opts);
-let ciphertext, secret = "A$tr0nGp@$S";
+let ciphertext, secret = "S3cre+_Squ1rr3l";
 
 kruptein.get(secret, ciphertext, (err, pt) => {
   if (err)
@@ -84,6 +87,7 @@ kruptein.get(secret, ciphertext, (err, pt) => {
   console.log(pt);
 });
 ```
+
 
 Output
 ------
