@@ -1,5 +1,5 @@
 
-kruptein
+🔐 kruptein 
 ========
 crypto (krip-toh); from `kruptein` to hide or conceal.
 
@@ -9,58 +9,26 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
 
-Sandbox
+🔬 Sandbox
 -------
-This started as an exercise in understanding, now has useful functionality.
-
-Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
+ Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
 
 
-Install
--------
-To install `npm install kruptein`
-
-
-Methods
--------
-*   `.set(secret, plaintext, [aad], callback)`
-*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
-
-
-Options
--------
-Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
-The default key derivation function is `pbkdf2`, however use of the `scrypt` or `argon2` can be used as well.
-
-*   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
-*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
-*   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
-*   `iv_size`: (Optional) IV size bytes. Default: `16`.
-*   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
-*   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
-*   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
-*   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
-
-
-Usage
+🗝️ Usage
 -----
-When selecting an algorithm from `crypto.getCiphers()` the
-`iv` and `key_size` values are calculated auto-magically to make implementation
-easy.
+When selecting an algorithm from `crypto.getCiphers()` the `iv` and `key_size` values are calculated auto-magically to make implementation easy.
 
-You can always define your own if the defaults per algorithm and mode
-aren't what you would like; see the `options` section above.
+You can always define your own if the defaults per algorithm and mode aren't what you would like; see the `options` section above.
 
 The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
 
 
-Create ciphertext from plaintext
+🔒 Create ciphertext from plaintext
 -----------------
 An example of creating a new ciphertext object.
 
 ```javascript
-const kruptein = require("kruptein")(opts);
+const kruptein = require("kruptein")(opts || {});
 let secret = "S3cre+_Squ1rr3l";
 
 kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
@@ -72,12 +40,12 @@ kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
 ```
 
 
-Get plaintext from ciphertext
+🔓 Get plaintext from ciphertext
 ------------------
 An example of retrieveing plaintext from a ciphertext object.
 
 ```javascript
-const kruptein = require("kruptein")(opts);
+const kruptein = require("kruptein")(opts || {});
 let ciphertext, secret = "S3cre+_Squ1rr3l";
 
 kruptein.get(secret, ciphertext, (err, pt) => {
@@ -89,37 +57,78 @@ kruptein.get(secret, ciphertext, (err, pt) => {
 ```
 
 
-Output
-------
-The `.set()` method output depends on three factors; the `encodeas`,
-`algorithm` and `use_asn1`.
+👓 Install
+-------
+To install `npm install kruptein`
 
-For any algorithm that supports authentication (AEAD), the object
-structure includes the `Authentication Tag` and the `Additional
+
+📦 Methods
+-------
+*   `.set(secret, plaintext, [aad], callback)`
+*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
+
+
+🛠️ Options
+-------
+Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
+The default key derivation function is `pbkdf2`, however use of the `scrypt` or `argon2` can be used as well.
+
+#### Cryptography options
+*   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
+*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
+*   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
+*   `iv_size`: (Optional) IV size bytes. Default: `16`.
+*   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
+
+#### Key derivation options
+*   `use_scrypt`: (Optional) Use `.scrypt()` to derive a key. Requires node > v10. Default/Fallback: `.pbkdf2()`.
+*   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
+
+#### Encoding options
+*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
+*   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
+
+
+📐 Example configuration (kitchen sink)
+-----------------
+An example of creating a new ciphertext object.
+
+```javascript
+const opts = {
+  algorithm: 'aes-256-gcm',
+  hashing: 'sha384',
+  key_size: 64,
+  iv_size: 16,
+  at_size: 128,
+  use_argon2: true,
+  encodeas: 'base64',
+  use_asn1: true
+}
+
+const kruptein = require("kruptein")(opts || {});
+```
+
+
+🌱 Output
+------
+The `.set()` method output depends on three factors; the `encodeas`, `algorithm` and `use_asn1`.
+
+For any algorithm that supports authentication (AEAD), the object structure includes the `Authentication Tag` and the `Additional
 Authentication Data` attribute and value.
 
-When the `use_asn1` option is enabled (default is true), the result
-is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/)
-value using the `encodeas` value. While this is a more complex
-encoding option, it helps standardize & minimize the size of the
-resulting ciphertext output.
+When the `use_asn1` option is enabled (default is true), the result is an [ASN.1](https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/) value using the `encodeas` value. While this is a more complex encoding option, it helps standardize & minimize the size of the resulting ciphertext output.
 
 
-Test harness
+🧪 Test harness
 ------------
-The included test harness, invoked with `npm test`, makes every
-attempt to trap and handle errors. Some of which come from side
-channel or possible malability of the resultant ciphertext.
+The included test harness, invoked with `npm test`, makes every attempt to trap and handle errors. Some of which come from side channel or possible malability of the resultant ciphertext.
 
-This can be seen within the `test/index.js` CI test harness under
-the HMAC, AT & AAD validation test cases.
+This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
 
 
-References
+🧠 References
 -----------------------
-This module conforms to industry recommendations regarding algorithm type,
-mode, key size, iv size & implementation, digests, key derivation & management
-etc. References used provided here:
+This module conforms to industry recommendations regarding algorithm type, mode, key size, iv size & implementation, digests, key  derivation & management etc. References used provided here:
 
 **RFC:**
 *   [RFC 2104](https://tools.ietf.org/html/rfc2104): HMAC: Keyed-Hashing for Message Authentication
@@ -146,15 +155,14 @@ etc. References used provided here:
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
 
 
-Contributing
+📡 Contributing
 ------------
 Contributions are welcome & appreciated!
 
-Refer to the [contributing document](https://github.com/jas-/kruptein/blob/master/CONTRIBUTING.md)
-to help facilitate pull requests.
+Refer to the [contributing document](https://github.com/jas-/kruptein/blob/master/CONTRIBUTING.md) to help facilitate pull requests.
 
 
-License
+📑 License
 -------
 This software is licensed under the [MIT License](https://github.com/jas-/kruptein/blob/master/LICENSE).
 
