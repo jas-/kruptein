@@ -9,7 +9,7 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
 
-🔥 v4.x
+🔥 Migration from older releases to v4.x.x
 -------
 For faster performance it is recommended to upgrade to the latest `v4.x.x` release. While it is a breaking API change, the [migration](MIGRATION.md) document can help.
 
@@ -28,15 +28,16 @@ You can always define your own if the defaults per algorithm and mode aren't wha
 The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
 
 
-🔒 Create ciphertext from plaintext
+🔒 Create ciphertext
 -----------------
 An example of creating a new ciphertext object.
 
 ```javascript
-const kruptein = require("kruptein")(opts || {});
-let secret = "S3cre+_Squ1rr3l";
+const kruptein = require("kruptein"),
+      secret = "S3cre+_Squ1rr3l",
+      crypto = kruptein(secret, opts);
 
-kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
+crypto.set("Some kind of wonderfully private message", (err, ct) => {
   if (err)
     throw err;
 
@@ -45,15 +46,16 @@ kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
 ```
 
 
-🔓 Get plaintext from ciphertext
+🔓 Get plaintext
 ------------------
 An example of retrieveing plaintext from a ciphertext object.
 
 ```javascript
-const kruptein = require("kruptein")(opts || {});
-let ciphertext, secret = "S3cre+_Squ1rr3l";
+const kruptein = require("kruptein"),
+      secret = "S3cre+_Squ1rr3l",
+      crypto = kruptein(secret, opts);
 
-kruptein.get(secret, ciphertext, (err, pt) => {
+crypto.get(secret, ciphertext, (err, pt) => {
   if (err)
     throw err;
 
@@ -69,8 +71,8 @@ To install `npm install kruptein`
 
 📦 Methods
 -------
-*   `.set(secret, plaintext, [aad], callback)`
-*   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
+*   `.set(plaintext, [aad], callback)`
+*   `.get(ciphertext, [{at: auth_tag, aad: aad}], callback)`
 
 
 🛠️ Options
@@ -110,7 +112,8 @@ const opts = {
   use_asn1: true
 }
 
-const kruptein = require("kruptein")(opts || {});
+const kruptein = require("kruptein");
+      crypto = kruptein('$3crE+P@ssL33+', opts);
 ```
 
 
