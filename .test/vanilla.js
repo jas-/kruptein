@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 
-let secret = "S3cre+_Squ1rr3l", kruptein,
+let secret = "S3cre+_Squ1rr3l", kruptein, crypto_lib,
     ciphers = [], hashes = [],
     encoding = ['binary', 'hex', 'base64'],
     key_derivation = ['default', 'scrypt', 'argon2'],
@@ -43,9 +43,9 @@ hashes = crypto.getHashes().filter(hash => {
 
 
 // Because we want a quick test
-//ciphers=["aes-256-gcm"];
-//hashes=["sha384"];
-//encoding=["base64"];
+ciphers=["aes-256-gcm"];
+hashes=["sha384"];
+encoding=["base64"];
 
 
 
@@ -67,7 +67,7 @@ for (let cipher in ciphers) {
           eval("options.use_" + key_derivation[kd] + " = true");
         }
 
-        kruptein = require("../index.js")(options);
+        kruptein = require("../index.js");
 
         console.log('kruptein: { key_derivation: "'+key_derivation[kd]+'", algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
 
@@ -75,9 +75,11 @@ for (let cipher in ciphers) {
 
         for (let phrase in phrases) {
 
-          console.log(phrases[phrase])
+          console.log(phrases[phrase]);
 
-          kruptein.set(secret, phrases[phrase], (err, res) => {
+	  crypto_lib = kruptein(secret, options);
+
+          crypto_lib.set(phrases[phrase], (err, res) => {
             if (err)
               console.log(err);
 
@@ -86,7 +88,7 @@ for (let cipher in ciphers) {
 
           console.log(ct);
 
-          kruptein.get(secret, ct, (err, res) => {
+          crypto_lib.get(ct, (err, res) => {
             if (err)
               console.log(err);
 
