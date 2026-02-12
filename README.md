@@ -9,11 +9,6 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
 
-🔥 v4.x
--------
-For faster performance it is recommended to upgrade to the latest `v4.x.x` release. While it is a breaking API change, the [migration](MIGRATION.md) document can help.
-
-
 🔬 Sandbox
 -------
  Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
