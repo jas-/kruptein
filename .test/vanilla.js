@@ -43,9 +43,9 @@ hashes = crypto.getHashes().filter(hash => {
 
 
 // Because we want a quick test
-//ciphers=["aes-256-gcm"];
-//hashes=["sha384"];
-//encoding=["base64"];
+ciphers=["aes-256-gcm"];
+hashes=["sha384"];
+encoding=["base64"];
 
 
 
