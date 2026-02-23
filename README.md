@@ -11,7 +11,7 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 
 🔬 Sandbox
 -------
- Here you can experiment with the module to ensure it will suit your needs. [kruptein](https://codesandbox.io/p/devbox/kruptein-test-1z9zgd?embed=1&file=%2Findex.js)
+ Here you can experiment with the module to ensure it will suit your needs. [kruptein @ codesandbox.io](https://codesandbox.io/p/devbox/bitter-mountain-xwkh4z)
 
 
 🗝️ Usage
