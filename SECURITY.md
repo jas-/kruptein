@@ -5,7 +5,7 @@ The following versions are supported.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 3.0.x   | :white_check_mark: |
+| 3.2.x   | :white_check_mark: |
 | 2.2.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability

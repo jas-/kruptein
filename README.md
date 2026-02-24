@@ -23,7 +23,7 @@ You can always define your own if the defaults per algorithm and mode aren't wha
 The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
 
 
-🔒 Create ciphertext from plaintext
+🔒 Encrypt
 -----------------
 An example of creating a new ciphertext object.
 
@@ -40,7 +40,7 @@ kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
 ```
 
 
-🔓 Get plaintext from ciphertext
+🔓 Decrypt
 ------------------
 An example of retrieveing plaintext from a ciphertext object.
 
@@ -89,7 +89,7 @@ The default key derivation function is `pbkdf2`, however use of the `scrypt` or 
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
 
-📐 Example configuration (kitchen sink)
+📐 Options example
 -----------------
 An example of creating a new ciphertext object.
 

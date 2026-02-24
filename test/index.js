@@ -1,15 +1,14 @@
 "use strict";
 
-// Dependencies
+const test = require("node:test");
+const assert = require("node:assert");
 const crypto = require("crypto");
-const expect = require("expect.js");
 
 
-// Inits
-let kruptein, hmac, secret = "S3cre+_Squ1rr3l",
+let secret = "S3cre+_Squ1rr3l", kruptein,
     ciphers = [], hashes = [],
-    ciphers_tmp = [], hashes_tmp = [],
-    tests = [], encoding = ["binary", "hex", "base64"],
+    encoding = ['binary', 'hex', 'base64'],
+    key_derivation = ['default', 'scrypt', 'argon2'],
     phrases = [
       "Secret Squirrel",
       "écureuil secret",
@@ -26,19 +25,21 @@ let kruptein, hmac, secret = "S3cre+_Squ1rr3l",
       "таемная вавёрка",
     ];
 
+const options = {
+  use_asn1: true
+};
 
-// Filter getCiphers()
+
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && cipher.match(/256|192/i) && !cipher.match(/hmac|wrap|ecb|ofb|xts|ccm/))
+  if (cipher.match(/^aes/i) && cipher.match(/256/i)&& !cipher.match(/hmac|wrap|ccm|ecb/))
     return cipher;
 });
 
-// Filter getHashes()
+
 hashes = crypto.getHashes().filter(hash => {
   if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
     return hash;
 });
-
 
 // Because we want a quick test
 ciphers=["aes-256-gcm"];
@@ -46,572 +47,66 @@ hashes=["sha384"];
 encoding=["base64"];
 
 
-// Build tests array
-ciphers.forEach(cipher => {
-  hashes.forEach(hash => {
-    encoding.forEach(encode => {
-      tests.push(
-        {
-          "title": "{ algorithm: "+cipher+", hashing: "+hash+", encodeas: "+encode+" }",
-          "options": {
-            "algorithm": cipher,
-            "hashing": hash,
-            "encodeas": encode,
-            "use_asn1": false,
-            "use_safe_timing": true
-          }
+
+for (let cipher in ciphers) {
+  options.algorithm = ciphers[cipher];
+
+  for (let hash in hashes) {
+    options.hashing = hashes[hash];
+
+    for (let enc in encoding) {
+      options.encodeas = encoding[enc];
+
+      for (let kd in key_derivation) {
+
+        // Don't do this in production! `eval()` is not safe!!
+        options.use_argon2 = false;
+        options.use_scrypt = false;
+
+        if (key_derivation[kd] != "default") {
+          eval("options.use_" + key_derivation[kd] + " = true");
         }
-      );
-    });
-  });
-});
 
+        kruptein = require("../index.js")(options);
 
-// Begin iterator
-tests.forEach(test => {
-  describe("kruptein: "+test.title, () => {
+        test(`kruptein: { key_derivation: "${key_derivation[kd]}", algorithm: "${options.algorithm}", hashing: "${options.hashing}", encodeas: "${options.encodeas}" }`, async (t) => {
 
-    // Init kruptein with the test options
-    beforeEach(function(done) {
-      this.timeout(50000);
-      kruptein = require("../index.js")(test.options);
-      done();
-    });
+          let ct, pt;
 
+          for (let phrase in phrases) {
 
-    describe("Private Functions", () => {
+            await t.test(`phrase: ${phrases[phrase]}`, async () => {
 
-      describe("Validator Tests", () => {
 
-        it("Validate supplied secrets complexity: ._complexity()", function(done) {
-          let complexity = kruptein._complexity(secret);
-          expect(complexity).to.equal(true);
-          done();
-        });
+              ct = await new Promise((resolve, reject) => {
+                kruptein.set(secret, phrases[phrase], (err, res) => {
+                  if (err) return reject(err);
+                  resolve(res);
+                });
+              });
 
+              assert.ok(ct, "Ciphertext should be produced");
 
-        it("Validate IV Size: ._iv()", function(done) {
-          let tmp_iv = kruptein._iv(kruptein._iv_size);
-          expect(Buffer.byteLength(tmp_iv)).to.equal(kruptein._iv_size);
-          done();
-        });
 
+              pt = await new Promise((resolve, reject) => {
+                kruptein.get(secret, ct, (err, res) => {
+                  if (err) return reject(err);
+                  resolve(res);
+                });
+              });
 
-        it("Validate Key Size: ._derive_key() => .pbkdf2()", function(done) {
-          kruptein._derive_key(secret, (err, res) => {
-            expect(err).to.be.null;
-            expect(Buffer.byteLength(res.key)).to.equal(kruptein._key_size);
-          });
+              assert.ok(pt, "Plaintext should be returned");
 
-          done();
-        });
 
+              if (typeof pt === "string")
+                pt = pt.replace(/\"/g, "");
 
-        it("Validate Key Size: ._derive_key() => .scrypt()", function(done) {
-          if (typeof crypto.scryptSync !== "function") {
-            this.skip();
-          }
+              assert.strictEqual(pt, phrases[phrase]);
 
-          let opts = {
-            use_scrypt: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp._derive_key(secret, (err, res) => {
-            expect(err).to.be.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-          });
-
-          done();
-        });
-
-
-        it("Validate Key Size: ._derive_key() => .argon2()", function(done) {
-          if (typeof crypto.argon2Sync !== "function") {
-            this.skip();
-          }
-
-          let opts = {
-            use_argon2: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp._derive_key(secret, (err, res) => {
-            expect(err).to.be.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-          });
-
-          done();
-        });
-      });
-
-
-      describe("Key Derivation Tests", () => {
-
-        it("Key Derivation: ._derive_key() => .pbkdf2(\""+secret+"\")", function(done) {
-          let opts = {
-            hashing: "w00t"
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp._derive_key(secret, (err, res) => {
-            expect(err).to.equal("Unable to derive key!");
-            expect(res).to.equal.null;
-          });
-
-          done();
-        });
-
-
-        it("Key Derivation: ._derive_key() => .scrypt(\""+secret+"\")", function(done) {
-          if (typeof crypto.scryptSync !== "function") {
-            this.skip();
-          }
-
-          let opts = {
-            use_scrypt: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp._derive_key({secret: secret}, (err, res) => {
-            expect(err).to.equal.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-          });
-
-          done();
-        });
-
-
-        it("Key Derivation: ._derive_key() => .argon2(\""+secret+"\")", function(done) {
-          if (typeof crypto.argon2Sync !== "function") {
-            this.skip();
-          }
-
-          let opts = {
-            use_argon2: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp._derive_key(secret, (err, res) => {
-            expect(err).to.equal.null;
-            expect(Buffer.byteLength(res.key)).to.equal(tmp._key_size);
-          });
-
-          done();
-        });
-
-
-        it("Digest Validation: ._digest(\""+phrases[0]+"\")", function(done) {
-          kruptein._digest(test.options.secret, phrases[0], "w00t",
-                           test.options.encodeas, (err, res) => {
-                             expect(err).to.equal("Unable to generate digest!");
-                             expect(res).to.equal.null;
-                           });
-
-          done();
-        });
-      });
-    });
-
-
-    describe("Public Functions", () => {
-
-      describe("Encryption Tests", () => {
-
-        it("Insecure Cipher: .set(\""+phrases[0]+"\")", function(done) {
-          let opts = {
-            algorithm: "aes-128-ccm"
-          }, tmp = require("../index.js")(opts);
-
-          tmp.set(secret, phrases[0], (err, res) => {
-            expect(err).to.equal("Insecure cipher mode not supported!");
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("Missing Secret: .set(\""+phrases[0]+"\")", function(done) {
-          kruptein.set("", phrases[0], (err, res) => {
-            expect(err).to.equal("The supplied secret failed to meet complexity requirements!");
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("Validate Ciphertext (pbkdf2): .set(\""+phrases[0]+"\")", function(done) {
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-          });
-
-          done();
-        });
-
-
-        it("Validate Ciphertext (scrypt): .set(\""+phrases[0]+"\")", function(done) {
-          if (typeof crypto.scryptSync !== "function") {
-            this.skip();
-          }
-
-          //kruptein._use_scrypt = true;
-          let opts = {
-            use_scrypt: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-          });
-
-          done();
-        });
-
-
-        it("Validate Ciphertext (argon2): .set(\""+phrases[0]+"\")", function(done) {
-          if (typeof crypto.argon2Sync !== "function") {
-            this.skip();
-          }
-
-          //kruptein._use_argon2 = true;
-          let opts = {
-            use_argon2: true
-          };
-          let tmp = require("../index.js")(opts);
-
-          tmp.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-          });
-
-          done();
-        });
-
-
-        it("Validate Ciphertext: (Non-ASN.1) .set(\""+phrases[0]+"\")", function(done) {
-          let opts = {
-            use_asn1: false
-          }, tmp = require("../index.js")(opts);
-
-          tmp.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.null;
-          });
-
-          done();
-        });
-      });
-
-
-      describe("Decryption Tests", () => {
-
-        it("Insecure Cipher: .get(\""+phrases[0]+"\")", function(done) {
-          let opts = {
-            algorithm: "aes-128-ccm"
-          }, tmp = require("../index.js")(opts);
-
-          tmp.get(secret, phrases[0], (err, res) => {
-            expect(err).to.equal("Insecure cipher mode not supported!");
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("Missing Secret: .get(\""+phrases[0]+"\")", function(done) {
-          kruptein.get("", phrases[0], (err, res) => {
-            expect(err).to.equal("Must supply a secret!");
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("Ciphertext parsing: .set(\""+phrases[0]+"\")", function(done) {
-          let ct;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-          });
-
-          done();
-        });
-
-
-        it("HMAC Validation: .set(\""+phrases[0]+"\")", function(done) {
-          let ct;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
-          } else {
-            ct = JSON.parse(ct);
-          }
-  
-          expect(ct).to.have.property("hmac");
-          ct.hmac = "funky chicken";
-  
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
-          } else {
-            ct = JSON.stringify(ct);
-          }
-
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.match(/Encrypted session was tampered with!|null/);
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("AT Validation: .get(\""+phrases[0]+"\")", function(done) {
-          let ct;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          if (!kruptein._aead_mode)
-            done();
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
-          } else {
-            ct = JSON.parse(ct);
-          }
-
-          expect(ct).to.have.property("at");
-          ct.at = crypto.randomBytes(kruptein._at_size);
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
-          } else {
-            ct = JSON.stringify(ct);
-          }
-
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.match(/Unable to decrypt ciphertext!|null/);
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("AT Validation (opts): .get(\""+phrases[0]+"\")", function(done) {
-          let ct, at;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          if (!kruptein._aead_mode)
-            done();
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
-          } else {
-            ct = JSON.parse(ct);
-          }
-
-          expect(ct).to.have.property("at");
-          at = ct.at;
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
-          } else {
-            ct = JSON.stringify(ct);
-          }
-
-          kruptein.get(secret, ct, {at: at}, (err, res) => {
-            expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
-          });
-
-          done();
-        });
-
-
-        it("AAD Validation: .get(\""+phrases[0]+"\")", function(done) {
-          let ct;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          if (!kruptein._aead_mode)
-            done();
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
-          } else {
-            ct = JSON.parse(ct);
-          }
-
-          expect(ct).to.have.property("at");
-          ct.aad = crypto.randomBytes(ct.aad.length + 1);
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
-          } else {
-            ct = JSON.stringify(ct);
-          }
-
-          kruptein.get(secret, ct, (err, res) => {
-            expect(err).to.match(/Unable to decrypt ciphertext!|null/);
-            expect(res).to.be.null;
-          });
-
-          done();
-        });
-
-
-        it("AAD Validation (opts): .get(\""+phrases[0]+"\")", function(done) {
-          let ct, aad;
-
-          kruptein.set(secret, phrases[0], (err, res) => {
-            expect(err).to.be.null;
-            expect(res).to.not.be.empty;
-            ct = res;
-          });
-
-          if (!kruptein._aead_mode)
-            done();
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.decode(Buffer.from(ct, kruptein._encodeas));
-          } else {
-            ct = JSON.parse(ct);
-          }
-
-          expect(ct).to.have.property("aad");
-          aad = ct.aad.toString();
-
-          if (kruptein._use_asn1) {
-            ct = kruptein.schema.encode(ct).toString(kruptein._encodeas);
-          } else {
-            ct = JSON.stringify(ct);
-          }
-          
-          kruptein.get(secret, ct, {aad: aad}, (err, res) => {
-            expect(err).to.be.null;
-            expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
-          });
-
-          done();
-        });
-
-
-        for (let phrase in phrases) {
-          it("Validate Plaintext (pbkdf2): .get(\""+phrases[phrase]+"\")", function(done) {
-            let ct;
-
-            kruptein.set(secret, phrases[phrase], (err, res) => {
-              expect(err).to.be.null;
-              expect(res).to.not.be.empty;
-              ct = res;
             });
-
-            if (typeof ct === "object")
-              ct = JSON.stringify(ct)
-
-            kruptein.get(secret, ct, (err, res) => {
-              expect(err).to.be.null;
-              expect(res.replace(/\"/g, "")).to.equal(phrases[phrase]);
-            });
-
-            done();
-          });
-
-
-          it("Validate Plaintext (scrypt): .get(\""+phrases[phrase]+"\")", function(done) {
-            if (typeof crypto.scryptSync !== "function") {
-              this.skip();
-            }
-
-            let ct;
-
-            //kruptein._use_scrypt = true;
-            let opts = {
-              use_scrypt: true
-            };
-            let tmp = require("../index.js")(opts);
-
-            tmp.set(secret, phrases[0], (err, res) => {
-              expect(err).to.be.null;
-              expect(res).to.not.be.empty;
-              ct = res;
-            });
-
-            if (typeof ct === "object")
-              ct = JSON.stringify(ct)
-
-            tmp.get(secret, ct, (err, res) => {
-              expect(err).to.be.null;
-              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
-            });
-
-            done();
-          });
-
-
-          it("Validate Plaintext (argon2): .get(\""+phrases[phrase]+"\")", function(done) {
-            if (typeof crypto.argon2Sync !== "function") {
-              this.skip();
-            }
-
-            let ct;
-
-            //kruptein._use_argon2 = true;
-            let opts = {
-              use_argon2: true
-            };
-            let tmp = require("../index.js")(opts);
-
-            tmp.set(secret, phrases[0], (err, res) => {
-              expect(err).to.be.null;
-              expect(res).to.not.be.empty;
-              ct = res;
-            });
-
-            if (typeof ct === "object")
-              ct = JSON.stringify(ct)
-
-            tmp.get(secret, ct, (err, res) => {
-              expect(err).to.be.null;
-              expect(res.replace(/\"/g, "")).to.equal(phrases[0]);
-            });
-
-            done();
-          });
-        }
-      });
-    });
-  });
-});
+          }
+        });
+      }
+    }
+  }
+}

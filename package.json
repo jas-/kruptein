@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -36,18 +36,13 @@
   "bugs": {
     "url": "https://github.com/jas-/kruptein/issues"
   },
-  "devDependencies": {
-    "expect.js": "0.3.1",
-    "mocha": "^11.0.0",
-    "nyc": "17.1.0"
-  },
   "scripts": {
-    "test": "nyc mocha test/*.js"
+    "test": "node --test"
   },
   "engines": {
     "node": ">8"
   },
   "dependencies": {
-    "asn1.js": "^5.4.1"
+    "@jas-/asn.1": ">=5"
   }
 }
