@@ -14,15 +14,6 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
  Here you can experiment with the module to ensure it will suit your needs. [kruptein @ codesandbox.io](https://codesandbox.io/p/devbox/romantic-wu-cywk2c)
 
 
-🗝️ Usage
------
-When selecting an algorithm from `crypto.getCiphers()` the `iv` and `key_size` values are calculated auto-magically to make implementation easy.
-
-You can always define your own if the defaults per algorithm and mode aren't what you would like; see the `options` section above.
-
-The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
-
-
 🔒 Encrypt
 -----------------
 An example of creating a new ciphertext object.
@@ -107,6 +98,15 @@ const opts = {
 
 const kruptein = require("kruptein")(opts || {});
 ```
+
+
+🗝️ Usage
+-----
+When selecting an algorithm from `crypto.getCiphers()` the `iv` and `key_size` values are calculated auto-magically to make implementation easy.
+
+You can always define your own if the defaults per algorithm and mode aren't what you would like; see the `options` section above.
+
+The `secret` must meet [complexity requirements](https://github.com/jas-/kruptein/blob/5d41a5fa35101112f150c6bf3f757d660f0f3ce1/lib/kruptein.js#L401)
 
 
 🌱 Output
