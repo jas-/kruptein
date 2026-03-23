@@ -30,7 +30,7 @@ const options = {
 
 // Filter getCiphers()
 ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && cipher.match(/256/i)&& !cipher.match(/hmac|wrap|ccm|ecb/))
+  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
     return cipher;
 });
 
