@@ -48,12 +48,12 @@ kruptein.get(secret, ciphertext, (err, pt) => {
 ```
 
 
-👓 Install
+📦 Install
 -------
 To install `npm install kruptein`
 
 
-📦 Methods
+👓 Methods
 -------
 *   `.set(secret, plaintext, [aad], callback)`
 *   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
