@@ -139,6 +139,7 @@ This module conforms to industry recommendations regarding algorithm type, mode,
 *   [RFC 9106](https://datatracker.ietf.org/doc/html/rfc9106): Argon2 Memory-Hard Function for Password Hashing and Proof-of-Work Applications
 *   [X.697](https://www.itu.int/rec/T-REC-X.697-201710-I/en): ASN.1 encoding rules: Specifications of JavaScript Object Notation Encoding Rules (JER)
 
+
 **NIST:**
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
 *   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
@@ -149,10 +150,12 @@ This module conforms to industry recommendations regarding algorithm type, mode,
 *   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
 *   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
 
+
 **FIPS:**
 *   [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf): Advanced Encryption Standard (AES)
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
+*   [FIPS 186-5](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf): Digital Signature Standard (DSS)
 
 
 📡 Contributing
