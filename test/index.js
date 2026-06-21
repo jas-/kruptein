@@ -5,7 +5,10 @@ const crypto = require("node:crypto");
 const test = require("node:test");
 
 const createKruptein = require("../index.js");
-const { selectCryptoMatrix } = require("../.test/crypto-matrix.js");
+const {
+  isFullMatrixRequested,
+  selectCryptoMatrix,
+} = require("../.test/vanilla.js");
 
 const {
   algorithms: supportedAlgorithms,
@@ -90,6 +93,69 @@ function mutateBase64String(value) {
   const replacement = value[0] === "A" ? "B" : "A";
   return replacement + value.slice(1);
 }
+
+test("selects the quick matrix by default", () => {
+  assert.deepStrictEqual(selectCryptoMatrix({ full: false }), {
+    algorithms: ["aes-256-gcm"],
+    hashes: ["sha384"],
+    encodings: ["base64"],
+  });
+});
+
+test("enables the full matrix with the CLI flag", () => {
+  assert.strictEqual(isFullMatrixRequested({
+    argv: ["node", "test/index.js", "--full"],
+    env: {},
+  }), true);
+});
+
+test("enables the full matrix with the environment variable", () => {
+  assert.strictEqual(isFullMatrixRequested({
+    argv: ["node", "test/index.js"],
+    env: { KRUPTEIN_FULL_MATRIX: "1" },
+  }), true);
+});
+
+test("filters discovered algorithms for the full matrix", () => {
+  const matrix = selectCryptoMatrix({
+    full: true,
+    availableCiphers: [
+      "aes-256-gcm",
+      "AES-192-CBC",
+      "aes-256-ccm",
+      "aes-256-ecb",
+      "aes-256-wrap",
+      "aes-256-xts",
+      "aes-128-gcm",
+      "chacha20-poly1305",
+    ],
+    availableHashes: [
+      "sha224",
+      "SHA3-256",
+      "sha384",
+      "sha512",
+      "RSA-SHA256",
+      "md5",
+    ],
+  });
+
+  assert.deepStrictEqual(matrix, {
+    algorithms: ["aes-256-gcm", "AES-192-CBC"],
+    hashes: ["sha224", "SHA3-256", "sha384", "sha512"],
+    encodings: ["binary", "hex", "base64"],
+  });
+});
+
+test("rejects an empty discovered full matrix", () => {
+  assert.throws(
+    () => selectCryptoMatrix({
+      full: true,
+      availableCiphers: ["chacha20-poly1305"],
+      availableHashes: ["md5"],
+    }),
+    { message: "No compatible ciphers or hashes were discovered for the full matrix" }
+  );
+});
 
 test("round-trips unicode strings for supported key derivation modes", async (suite) => {
   for (const algorithm of supportedAlgorithms) {

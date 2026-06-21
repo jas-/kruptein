@@ -1,8 +1,52 @@
 "use strict";
 
 const assert = require("node:assert");
+const crypto = require("node:crypto");
 const createKruptein = require("../index.js");
-const { selectCryptoMatrix } = require("./crypto-matrix.js");
+
+const quickMatrix = {
+  algorithms: ["aes-256-gcm"],
+  hashes: ["sha384"],
+  encodings: ["base64"],
+};
+
+const fullEncodings = ["binary", "hex", "base64"];
+
+function isFullMatrixRequested({ argv = process.argv, env = process.env } = {}) {
+  return argv.includes("--full") || env.KRUPTEIN_FULL_MATRIX === "1";
+}
+
+function selectCryptoMatrix({
+  full = isFullMatrixRequested(),
+  availableCiphers,
+  availableHashes,
+} = {}) {
+  if (!full) {
+    return {
+      algorithms: [...quickMatrix.algorithms],
+      hashes: [...quickMatrix.hashes],
+      encodings: [...quickMatrix.encodings],
+    };
+  }
+
+  const algorithms = (availableCiphers || crypto.getCiphers()).filter((cipher) => (
+    /^aes/i.test(cipher)
+      && !/hmac|wrap|ccm|ecb|ocb2|xts|^aes-?128(?:-|$)/i.test(cipher)
+  ));
+  const hashes = (availableHashes || crypto.getHashes()).filter((hash) => (
+    /^sha[2-5]/i.test(hash) && !/rsa/i.test(hash)
+  ));
+
+  if (algorithms.length === 0 || hashes.length === 0) {
+    throw new Error("No compatible ciphers or hashes were discovered for the full matrix");
+  }
+
+  return {
+    algorithms,
+    hashes,
+    encodings: [...fullEncodings],
+  };
+}
 
 const {
   algorithms: supportedAlgorithms,
@@ -164,7 +208,14 @@ async function main() {
   console.log("vanilla harness completed");
 }
 
-main().catch((error) => {
-  console.error(error.stack || error.message);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error.stack || error.message);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = {
+  isFullMatrixRequested,
+  selectCryptoMatrix,
+};
