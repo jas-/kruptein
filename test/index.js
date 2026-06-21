@@ -1,211 +1,252 @@
 "use strict";
 
-const test = require("node:test");
 const assert = require("node:assert");
-const crypto = require("crypto");
+const crypto = require("node:crypto");
+const test = require("node:test");
 
+const createKruptein = require("../index.js");
+const { selectCryptoMatrix } = require("../.test/crypto-matrix.js");
 
-let secret = "S3cre+_Squ1rr3l", kruptein,
-    ciphers = [], hashes = [],
-    encoding = ['binary', 'hex', 'base64'],
-    key_derivation = ['default', 'scrypt', 'argon2'],
-    phrases = [
-      "Secret Squirrel",
-      "écureuil secret",
-      "गुप्त गिलहरी",
-      "ਗੁਪਤ ਗਿੱਠੀ",
-      "veverița secretă",
-      "секретная белка",
-      "leyndur íkorna",
-      "السنجاب السري",
-      "գաղտնի սկյուռ",
-      "feòrag dìomhair",
-      "গোপন কাঠবিড়ালি",
-      "秘密のリス",
-      "таемная вавёрка",
-    ];
+const {
+  algorithms: supportedAlgorithms,
+  hashes: supportedHashes,
+  encodings: supportedEncodings,
+} = selectCryptoMatrix();
 
-const options = {
-  use_asn1: true
-};
+const defaultSecret = "S3cre+_Squ1rr3l";
+const alternateSecret = "An0th#r_Squ1rr3l";
+const keyDerivationModes = ["default", "scrypt", "argon2"];
+const samplePhrases = [
+  "Secret Squirrel",
+  "écureuil secret",
+  "गुप्त गिलहरी",
+  "ਗੁਪਤ ਗਿੱਠੀ",
+  "veverița secretă",
+  "секретная белка",
+  "leyndur íkorna",
+  "السنجاب السري",
+  "գաղտնի սկյուռ",
+  "feòrag dìomhair",
+  "গোপন কাঠবিড়ালি",
+  "秘密のリス",
+  "таемная вавёрка"
+];
 
+function createOptions(overrides = {}) {
+  return {
+    algorithm: "aes-256-gcm",
+    hashing: "sha384",
+    encodeas: "base64",
+    use_asn1: true,
+    ...overrides,
+  };
+}
 
-ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
-    return cipher;
-});
+function createInstance(overrides = {}) {
+  return createKruptein(createOptions(overrides));
+}
 
+function encrypt(instance, secret, plaintext, aad) {
+  return new Promise((resolve, reject) => {
+    const callback = (error, ciphertext) => {
+      if (error) {
+        reject(new Error(error));
+        return;
+      }
 
-hashes = crypto.getHashes().filter(hash => {
-  if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
-    return hash;
-});
+      resolve(ciphertext);
+    };
 
-// Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha384"];
-encoding=["base64"];
+    if (typeof aad === "undefined") {
+      instance.set(secret, plaintext, callback);
+      return;
+    }
 
+    instance.set(secret, plaintext, aad, callback);
+  });
+}
 
+function decrypt(instance, secret, ciphertext, options) {
+  return new Promise((resolve, reject) => {
+    const callback = (error, plaintext) => {
+      if (error) {
+        reject(new Error(error));
+        return;
+      }
 
-for (let cipher in ciphers) {
-  options.algorithm = ciphers[cipher];
+      resolve(plaintext);
+    };
 
-  for (let hash in hashes) {
-    options.hashing = hashes[hash];
+    if (typeof options === "undefined") {
+      instance.get(secret, ciphertext, callback);
+      return;
+    }
 
-    for (let enc in encoding) {
-      options.encodeas = encoding[enc];
+    instance.get(secret, ciphertext, options, callback);
+  });
+}
 
-      for (let kd in key_derivation) {
+function mutateBase64String(value) {
+  const replacement = value[0] === "A" ? "B" : "A";
+  return replacement + value.slice(1);
+}
 
-        options.use_argon2 = false;
-        options.use_scrypt = false;
+test("round-trips unicode strings for supported key derivation modes", async (suite) => {
+  for (const algorithm of supportedAlgorithms) {
+    for (const hashing of supportedHashes) {
+      for (const encodeAs of supportedEncodings) {
+        for (const keyDerivationMode of keyDerivationModes) {
+          await suite.test(
+            `algorithm=${algorithm} hashing=${hashing} encoding=${encodeAs} kdf=${keyDerivationMode}`,
+            async (subsuite) => {
+              const instance = createKruptein({
+                algorithm,
+                hashing,
+                encodeas: encodeAs,
+                use_asn1: true,
+                use_scrypt: keyDerivationMode === "scrypt",
+                use_argon2: keyDerivationMode === "argon2",
+              });
 
-        if (key_derivation[kd] != "default") {
-          eval("options.use_" + key_derivation[kd] + " = true");
+              for (const phrase of samplePhrases) {
+                await subsuite.test(`phrase=${phrase}`, async () => {
+                  const ciphertext = await encrypt(instance, defaultSecret, phrase);
+                  const plaintext = await decrypt(instance, defaultSecret, ciphertext);
+
+                  assert.strictEqual(plaintext, phrase);
+                });
+              }
+            }
+          );
         }
-
-        kruptein = require("../index.js")(options);
-
-        test(`kruptein: { key_derivation: "${key_derivation[kd]}", algorithm: "${options.algorithm}", hashing: "${options.hashing}", encodeas: "${options.encodeas}" }`, async (t) => {
-
-          let ct, pt;
-
-          for (let phrase in phrases) {
-
-            await t.test(`phrase: ${phrases[phrase]}`, async () => {
-
-
-              ct = await new Promise((resolve, reject) => {
-                kruptein.set(secret, phrases[phrase], (err, res) => {
-                  if (err) return reject(err);
-                  resolve(res);
-                });
-              });
-
-              assert.ok(ct, "Ciphertext should be produced");
-
-
-              pt = await new Promise((resolve, reject) => {
-                kruptein.get(secret, ct, (err, res) => {
-                  if (err) return reject(err);
-                  resolve(res);
-                });
-              });
-
-              assert.ok(pt, "Plaintext should be returned");
-
-
-              if (typeof pt === "string")
-                pt = pt.replace(/\"/g, "");
-
-              assert.strictEqual(pt, phrases[phrase]);
-
-            });
-          }
-        });
       }
     }
   }
-}
+});
 
-// Error handling tests
-test("Error handling tests", async (t) => {
-  await t.test("Weak passphrase complexity", async () => {
-    const weakSecret = "weak";
-    const kruptein = require("../index.js")({ algorithm: "aes-256-gcm", hashing: "sha384", encodeas: "base64" });
+test("returns exact string plaintext without JSON quoting artifacts", async () => {
+  const instance = createInstance();
+  const plaintext = "already-a-string";
+  const ciphertext = await encrypt(instance, defaultSecret, plaintext);
 
-    await assert.rejects(
-      new Promise((resolve, reject) => {
-        kruptein.set(weakSecret, "test phrase", (err, res) => {
-          if (err) reject(new Error(err));
-          else resolve(res);
-        });
-      }),
-      { message: "The supplied secret failed to meet complexity requirements!" }
-    );
-  });
+  assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), plaintext);
+});
 
-  await t.test("Insecure cipher mode", async () => {
-    const kruptein = require("../index.js")({ algorithm: "aes-256-ecb", hashing: "sha384", encodeas: "base64" });
+test("rejects secrets that fail complexity rules without throwing runtime errors", async () => {
+  const instance = createInstance();
 
-    await assert.rejects(
-      new Promise((resolve, reject) => {
-        kruptein.set(secret, "test phrase", (err, res) => {
-          if (err) reject(new Error(err));
-          else resolve(res);
-        });
-      }),
-      { message: "Insecure cipher mode not supported!" }
-    );
-  });
+  await assert.rejects(
+    encrypt(instance, "lowercase12!!", "test phrase"),
+    { message: "The supplied secret failed to meet complexity requirements!" }
+  );
+});
 
-  await t.test("Inability to decrypt with wrong secret", async () => {
-    const krupteinEncrypt = require("../index.js")({ algorithm: "aes-256-gcm", hashing: "sha384", encodeas: "base64" });
-    const krupteinDecrypt = require("../index.js")({ algorithm: "aes-256-gcm", hashing: "sha384", encodeas: "base64" });
-    let ct;
+test("supports multiple secrets on the same instance", async () => {
+  const instance = createInstance();
+  const firstCiphertext = await encrypt(instance, defaultSecret, "first message");
+  const secondCiphertext = await encrypt(instance, alternateSecret, "second message");
 
-    // First encrypt with correct secret
-    ct = await new Promise((resolve, reject) => {
-      krupteinEncrypt.set(secret, "test phrase", (err, res) => {
-        if (err) reject(err);
-        else resolve(res);
-      });
-    });
+  const verifier = createInstance();
+  assert.strictEqual(await decrypt(verifier, defaultSecret, firstCiphertext), "first message");
+  assert.strictEqual(await decrypt(verifier, alternateSecret, secondCiphertext), "second message");
+});
 
-    // Try to decrypt with wrong secret using a new instance
-    const wrongSecret = "WrongSecret123!";
-    try {
-      await new Promise((resolve, reject) => {
-        krupteinDecrypt.get(wrongSecret, ct, (err, res) => {
-          if (err) reject(new Error(err));
-          else resolve(res);
-        });
-      });
-      assert.fail("Expected an error but none was thrown");
-    } catch (error) {
-      assert.ok(error.message.includes("tampered") || error.message.includes("decrypt"), `Unexpected error: ${error.message}`);
-    }
-  });
+test("round-trips JSON payload output when ASN.1 encoding is disabled", async () => {
+  const instance = createInstance({ use_asn1: false });
+  const ciphertext = await encrypt(instance, defaultSecret, "json payload");
+  const payload = JSON.parse(ciphertext);
 
-  await t.test("Inability to parse malformed ciphertext", async () => {
-    const kruptein = require("../index.js")({ algorithm: "aes-256-gcm", hashing: "sha384", encodeas: "base64" });
+  assert.strictEqual(typeof payload.ct, "string");
+  assert.strictEqual(typeof payload.hmac, "string");
+  assert.strictEqual(typeof payload.iv, "string");
+  assert.strictEqual(typeof payload.salt, "string");
+  assert.strictEqual(typeof payload.at, "string");
+  assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "json payload");
+});
 
-    await assert.rejects(
-      new Promise((resolve, reject) => {
-        kruptein.get(secret, "invalid ciphertext", (err, res) => {
-          if (err) reject(new Error(err));
-          else resolve(res);
-        });
-      }),
-      { message: "Unable to parse ciphertext object!" }
-    );
-  });
+test("rejects ciphertext when the HMAC is tampered but its length is unchanged", async () => {
+  const instance = createInstance({ use_asn1: false });
+  const ciphertext = await encrypt(instance, defaultSecret, "integrity check");
+  const payload = JSON.parse(ciphertext);
 
-  await t.test("Inability to decrypt tampered ciphertext", async () => {
-    const kruptein = require("../index.js")({ algorithm: "aes-256-gcm", hashing: "sha384", encodeas: "base64" });
-    let ct;
+  payload.hmac = mutateBase64String(payload.hmac);
 
-    // First encrypt
-    ct = await new Promise((resolve, reject) => {
-      kruptein.set(secret, "test phrase", (err, res) => {
-        if (err) reject(err);
-        else resolve(res);
-      });
-    });
+  await assert.rejects(
+    decrypt(instance, defaultSecret, JSON.stringify(payload)),
+    { message: "Encrypted session was tampered with!" }
+  );
+});
 
-    // Tamper with ciphertext by modifying it
-    const tamperedCt = ct.slice(0, -5) + "xxxxx"; // Change last few characters
+test("applies public iv_size and at_size overrides", async () => {
+  const instance = createInstance({ use_asn1: false, iv_size: 16, at_size: 12 });
+  const ciphertext = await encrypt(instance, defaultSecret, "override lengths");
+  const payload = JSON.parse(ciphertext);
 
-    await assert.rejects(
-      new Promise((resolve, reject) => {
-        kruptein.get(secret, tamperedCt, (err, res) => {
-          if (err) reject(new Error(err));
-          else resolve(res);
-        });
-      }),
-      (err) => err.message.includes("Encrypted session was tampered with!") || err.message.includes("Unable to decrypt ciphertext!")
-    );
-  });
+  assert.strictEqual(Buffer.from(payload.iv, "base64").length, 16);
+  assert.strictEqual(Buffer.from(payload.at, "base64").length, 12);
+  assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "override lengths");
+});
+
+test("applies the public key_size override", async () => {
+  const instance = createInstance({ key_size: 16 });
+
+  await assert.rejects(
+    encrypt(instance, defaultSecret, "invalid key size"),
+    { message: "Unable to create ciphertext!" }
+  );
+});
+
+test("rejects insecure cipher modes", async () => {
+  const instance = createInstance({ algorithm: "aes-256-ecb" });
+
+  await assert.rejects(
+    encrypt(instance, defaultSecret, "test phrase"),
+    { message: "Insecure cipher mode not supported!" }
+  );
+});
+
+test("rejects malformed ciphertext", async () => {
+  const instance = createInstance();
+
+  await assert.rejects(
+    decrypt(instance, defaultSecret, "invalid ciphertext"),
+    { message: "Unable to parse ciphertext object!" }
+  );
+});
+
+test("rejects decryption with the wrong secret", async () => {
+  const encryptor = createInstance();
+  const decryptor = createInstance();
+  const ciphertext = await encrypt(encryptor, defaultSecret, "test phrase");
+
+  await assert.rejects(
+    decrypt(decryptor, alternateSecret, ciphertext),
+    (error) => error.message.includes("tampered") || error.message.includes("decrypt")
+  );
+});
+
+test("uses the async scrypt API when available", async () => {
+  const originalScrypt = crypto.scrypt;
+  const originalScryptSync = crypto.scryptSync;
+  let asyncScryptCalls = 0;
+
+  crypto.scrypt = (secret, salt, keyLength, options, callback) => {
+    asyncScryptCalls += 1;
+    return originalScrypt(secret, salt, keyLength, options, callback);
+  };
+
+  crypto.scryptSync = () => {
+    throw new Error("scryptSync should not be used");
+  };
+
+  try {
+    const instance = createInstance({ use_scrypt: true });
+    const ciphertext = await encrypt(instance, defaultSecret, "async scrypt");
+
+    assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "async scrypt");
+    assert.ok(asyncScryptCalls >= 2);
+  } finally {
+    crypto.scrypt = originalScrypt;
+    crypto.scryptSync = originalScryptSync;
+  }
 });

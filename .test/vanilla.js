@@ -1,102 +1,170 @@
 "use strict";
 
-const crypto = require('crypto');
+const assert = require("node:assert");
+const createKruptein = require("../index.js");
+const { selectCryptoMatrix } = require("./crypto-matrix.js");
 
-let secret = "S3cre+_Squ1rr3l", kruptein,
-    ciphers = [], hashes = [],
-    encoding = ['binary', 'hex', 'base64'],
-    key_derivation = ['default', 'scrypt', 'argon2'],
-    phrases = [
-      "Secret Squirrel",
-      "écureuil secret",
-      "गुप्त गिलहरी",
-      "ਗੁਪਤ ਗਿੱਠੀ",
-      "veverița secretă",
-      "секретная белка",
-      "leyndur íkorna",
-      "السنجاب السري",
-      "գաղտնի սկյուռ",
-      "feòrag dìomhair",
-      "গোপন কাঠবিড়ালি",
-      "秘密のリス",
-      "таемная вавёрка",
-    ];
+const {
+  algorithms: supportedAlgorithms,
+  hashes: supportedHashes,
+  encodings: supportedEncodings,
+} = selectCryptoMatrix();
 
+const defaultSecret = "S3cre+_Squ1rr3l";
+const alternateSecret = "An0th#r_Squ1rr3l";
+const keyDerivationModes = ["default", "scrypt", "argon2"];
+const samplePhrases = [
+  "Secret Squirrel",
+  "écureuil secret",
+  "गुप्त गिलहरी",
+  "ਗੁਪਤ ਗਿੱਠੀ",
+  "veverița secretă",
+  "секретная белка",
+  "leyndur íkorna",
+  "السنجاب السري",
+  "գաղտնի սկյուռ",
+  "feòrag dìomhair",
+  "গোপন কাঠবিড়ালি",
+  "秘密のリス",
+  "таемная вавёрка"
+];
 
-const options = {
-  use_asn1: true
-};
+function createOptions(overrides = {}) {
+  return {
+    algorithm: "aes-256-gcm",
+    hashing: "sha384",
+    encodeas: "base64",
+    use_asn1: true,
+    use_scrypt: false,
+    use_argon2: false,
+    ...overrides,
+  };
+}
 
+function encrypt(instance, secret, plaintext, additionalAuthenticatedData) {
+  return new Promise((resolve, reject) => {
+    const callback = (error, ciphertext) => {
+      if (error) {
+        reject(new Error(error));
+        return;
+      }
 
-// Filter getCiphers()
-ciphers = crypto.getCiphers().filter(cipher => {
-  if (cipher.match(/^aes/i) && !cipher.match(/hmac|wrap|ccm|ecb/))
-    return cipher;
-});
+      resolve(ciphertext);
+    };
 
+    if (typeof additionalAuthenticatedData === "undefined") {
+      instance.set(secret, plaintext, callback);
+      return;
+    }
 
-// Filter getHashes()
-hashes = crypto.getHashes().filter(hash => {
-  if (hash.match(/^sha[2-5]/i) && !hash.match(/rsa/i))
-    return hash;
-});
+    instance.set(secret, plaintext, additionalAuthenticatedData, callback);
+  });
+}
 
+function decrypt(instance, secret, ciphertext, options) {
+  return new Promise((resolve, reject) => {
+    const callback = (error, plaintext) => {
+      if (error) {
+        reject(new Error(error));
+        return;
+      }
 
-// Because we want a quick test
-ciphers=["aes-256-gcm"];
-hashes=["sha384"];
-encoding=["base64"];
+      resolve(plaintext);
+    };
 
+    if (typeof options === "undefined") {
+      instance.get(secret, ciphertext, callback);
+      return;
+    }
 
+    instance.get(secret, ciphertext, options, callback);
+  });
+}
 
-for (let cipher in ciphers) {
-  options.algorithm = ciphers[cipher];
+function mutateBase64String(value) {
+  const replacement = value[0] === "A" ? "B" : "A";
+  return replacement + value.slice(1);
+}
 
-  for (let hash in hashes) {
-    options.hashing = hashes[hash];
+async function runRoundTripMatrix() {
+  for (const algorithm of supportedAlgorithms) {
+    for (const hashing of supportedHashes) {
+      for (const encodeAs of supportedEncodings) {
+        for (const keyDerivationMode of keyDerivationModes) {
+          const instance = createKruptein(createOptions({
+            algorithm,
+            hashing,
+            encodeas: encodeAs,
+            use_scrypt: keyDerivationMode === "scrypt",
+            use_argon2: keyDerivationMode === "argon2",
+          }));
 
-    for (let enc in encoding) {
-      options.encodeas = encoding[enc];
+          console.log(`kruptein: { key_derivation: "${keyDerivationMode}", algorithm: "${algorithm}", hashing: "${hashing}", encodeas: "${encodeAs}" }`);
 
-      for (let kd in key_derivation) {
+          for (const phrase of samplePhrases) {
+            const ciphertext = await encrypt(instance, defaultSecret, phrase);
+            const plaintext = await decrypt(instance, defaultSecret, ciphertext);
 
-        // Don't do this in production! `eval()` is not safe!!
-        if (key_derivation[kd] != "default") {
-          options.use_argon2 = false;
-          options.use_scrypt = false;
-          eval("options.use_" + key_derivation[kd] + " = true");
-        }
-
-        kruptein = require("../index.js")(options);
-
-        console.log('kruptein: { key_derivation: "'+key_derivation[kd]+'", algorithm: "'+options.algorithm+'", hashing: "'+options.hashing+'", encodeas: "'+options.encodeas+'" }');
-
-        let ct, pt;
-
-        for (let phrase in phrases) {
-
-          console.log(phrases[phrase])
-
-          kruptein.set(secret, phrases[phrase], (err, res) => {
-            if (err)
-              console.log(err);
-
-            ct = res;
-          });
-
-          console.log(ct);
-
-          kruptein.get(secret, ct, (err, res) => {
-            if (err)
-              console.log(err);
-
-            pt = res;
-          });
-
-          console.log(pt);
-          console.log("");
+            assert.strictEqual(plaintext, phrase);
+            console.log(`  plaintext: ${phrase}`);
+            console.log(`  ciphertext: ${ciphertext}`);
+            console.log(`  round-trip: ${plaintext}`);
+          }
         }
       }
     }
   }
 }
+
+async function runJsonModeCheck() {
+  const instance = createKruptein(createOptions({ use_asn1: false }));
+  const ciphertext = await encrypt(instance, defaultSecret, "json payload");
+  const payload = JSON.parse(ciphertext);
+
+  assert.strictEqual(typeof payload.ct, "string");
+  assert.strictEqual(typeof payload.hmac, "string");
+  assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "json payload");
+  console.log(`json mode ciphertext: ${ciphertext}`);
+  console.log("ok json payload mode");
+}
+
+async function runMultipleSecretsCheck() {
+  const instance = createKruptein(createOptions());
+  const firstCiphertext = await encrypt(instance, defaultSecret, "first message");
+  const secondCiphertext = await encrypt(instance, alternateSecret, "second message");
+
+  assert.strictEqual(await decrypt(instance, defaultSecret, firstCiphertext), "first message");
+  assert.strictEqual(await decrypt(instance, alternateSecret, secondCiphertext), "second message");
+  console.log(`first ciphertext: ${firstCiphertext}`);
+  console.log(`second ciphertext: ${secondCiphertext}`);
+  console.log("ok multiple secrets on one instance");
+}
+
+async function runTamperCheck() {
+  const instance = createKruptein(createOptions({ use_asn1: false }));
+  const ciphertext = await encrypt(instance, defaultSecret, "integrity check");
+  const payload = JSON.parse(ciphertext);
+
+  console.log(`tamper-check ciphertext: ${ciphertext}`);
+  payload.hmac = mutateBase64String(payload.hmac);
+
+  await assert.rejects(
+    decrypt(instance, defaultSecret, JSON.stringify(payload)),
+    { message: "Encrypted session was tampered with!" }
+  );
+
+  console.log("ok tamper rejection");
+}
+
+async function main() {
+  await runRoundTripMatrix();
+  await runJsonModeCheck();
+  await runMultipleSecretsCheck();
+  await runTamperCheck();
+  console.log("vanilla harness completed");
+}
+
+main().catch((error) => {
+  console.error(error.stack || error.message);
+  process.exitCode = 1;
+});

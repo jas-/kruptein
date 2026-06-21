@@ -16,34 +16,38 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 
 🔒 Encrypt
 -----------------
-An example of creating a new ciphertext object.
+Encrypt a plaintext message using the default options.
 
 ```javascript
-const kruptein = require("kruptein")(opts || {});
-let secret = "S3cre+_Squ1rr3l";
+const kruptein = require("kruptein")();
+const secret = "S3cre+_Squ1rr3l";
+const plaintext = "Some kind of wonderfully private message";
 
-kruptein.set(secret, "Some kind of wonderfully private message", (err, ct) => {
-  if (err)
-    throw err;
+kruptein.set(secret, plaintext, (error, ciphertext) => {
+  if (error) {
+    throw new Error(error);
+  }
 
-  console.log(ct);
+  console.log(ciphertext);
 });
 ```
 
 
 🔓 Decrypt
 ------------------
-An example of retrieveing plaintext from a ciphertext object.
+Decrypt a ciphertext returned by `kruptein.set()` using the same secret.
 
 ```javascript
-const kruptein = require("kruptein")(opts || {});
-let ciphertext, secret = "S3cre+_Squ1rr3l";
+const kruptein = require("kruptein")();
+const secret = "S3cre+_Squ1rr3l";
+const ciphertext = "<ciphertext returned by kruptein.set()>";
 
-kruptein.get(secret, ciphertext, (err, pt) => {
-  if (err)
-    throw err;
+kruptein.get(secret, ciphertext, (error, plaintext) => {
+  if (error) {
+    throw new Error(error);
+  }
 
-  console.log(pt);
+  console.log(plaintext);
 });
 ```
 
@@ -124,6 +128,12 @@ When the `use_asn1` option is enabled (default is true), the result is an [ASN.1
 The included test harness, invoked with `npm test`, makes every attempt to trap and handle errors. Some of which come from side channel or possible malability of the resultant ciphertext.
 
 This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
+
+📊 Benchmark harness
+------------
+Run `npm run bench` for a human-readable benchmark report or `npm run bench:json` for JSON output.
+
+The benchmark measures per-case wall time, CPU, memory, process disk I/O and, when available, GPU telemetry.
 
 
 🧠 References
