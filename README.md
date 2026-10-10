@@ -62,20 +62,6 @@ To install `npm install kruptein`
 *   `.set(secret, plaintext, [aad], callback)`
 *   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
 
-#### Derived key reuse
-
-Since v4 an instance remembers the last key it derived. The first `.set()` or
-`.get()` call for a secret pays the PBKDF2, scrypt or Argon2 cost. Every later
-call on the same instance with the same secret and salt reuses that key.
-Concurrent first calls share one derivation.
-
-The cache holds one key per instance. A call with a different secret, or a
-`.get()` with a ciphertext that carries a different salt, replaces it. Use one
-instance per secret when an application handles several secrets.
-
-The ciphertext format is unchanged from v3: `.set()` reuses the salt that
-belongs to the cached key, and v3 readers decrypt v4 output as before.
-
 
 🛠️ Options
 -------
@@ -142,12 +128,6 @@ When the `use_asn1` option is enabled (default is true), the result is an [ASN.1
 The included test harness, invoked with `npm test`, makes every attempt to trap and handle errors. Some of which come from side channel or possible malability of the resultant ciphertext.
 
 This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
-
-📊 Benchmark harness
-------------
-Run `npm run bench` for a human-readable benchmark report or `npm run bench:json` for JSON output.
-
-The benchmark measures per-case wall time, CPU, memory, process disk I/O and, when available, GPU telemetry.
 
 
 🧠 References

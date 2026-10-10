@@ -377,7 +377,7 @@ test("the slot is per instance", async () => {
   assert.strictEqual(calls, 2);
 });
 
-test("switching secrets re-derives", async () => {
+test("switching back to a cached secret does not re-derive", async () => {
   const instance = createInstance();
   const { calls } = await countPbkdf2Calls(async () => {
     await encrypt(instance, defaultSecret, "first");
@@ -385,7 +385,67 @@ test("switching secrets re-derives", async () => {
     await encrypt(instance, defaultSecret, "third");
   });
 
+  assert.strictEqual(calls, 2);
+});
+
+test("switching secrets re-derives when the cache is full", async () => {
+  const instance = createInstance();
+  instance.keyCacheSize = 2;
+  const { calls } = await countPbkdf2Calls(async () => {
+    await encrypt(instance, defaultSecret, "first");
+    await encrypt(instance, alternateSecret, "second");
+    await encrypt(instance, defaultSecret, "third");
+  });
+
   assert.strictEqual(calls, 3);
+});
+
+test("reads of several foreign salts stay cached", async () => {
+  // Restart or cluster: the store holds ciphertext from other processes.
+  const first = await encrypt(createInstance(), defaultSecret, "from process one");
+  const second = await encrypt(createInstance(), defaultSecret, "from process two");
+  const instance = createInstance();
+
+  const { calls } = await countPbkdf2Calls(async () => {
+    for (let round = 0; round < 3; round++) {
+      assert.strictEqual(await decrypt(instance, defaultSecret, first), "from process one");
+      assert.strictEqual(await decrypt(instance, defaultSecret, second), "from process two");
+      const own = await encrypt(instance, defaultSecret, `own ${round}`);
+      assert.strictEqual(await decrypt(instance, defaultSecret, own), `own ${round}`);
+    }
+  });
+
+  assert.strictEqual(calls, 3);
+});
+
+test("a write after a foreign read keeps the write salt", async () => {
+  const foreign = await encrypt(createInstance({ use_asn1: false }), defaultSecret, "foreign");
+  const instance = createInstance({ use_asn1: false });
+
+  const before = JSON.parse(await encrypt(instance, defaultSecret, "before"));
+  await decrypt(instance, defaultSecret, foreign);
+  const after = JSON.parse(await encrypt(instance, defaultSecret, "after"));
+
+  assert.strictEqual(after.salt, before.salt);
+});
+
+test("the cache stays within its size", async () => {
+  const instance = createInstance();
+  instance.keyCacheSize = 4;
+  const ciphertexts = [];
+  for (let i = 0; i < 6; i++) {
+    ciphertexts.push(await encrypt(createInstance(), defaultSecret, `salt ${i}`));
+  }
+
+  for (const ciphertext of ciphertexts) {
+    await decrypt(instance, defaultSecret, ciphertext);
+  }
+
+  assert.strictEqual(instance.derivedKeys.size, 4);
+});
+
+test("the cache holds 128 entries", () => {
+  assert.strictEqual(createInstance().keyCacheSize, 128);
 });
 
 test("decrypting a foreign salt derives once while the salt is unchanged", async () => {
@@ -425,12 +485,15 @@ test("a failed derivation is not kept in the slot", async () => {
   }
 });
 
-test("the slot never holds the secret", async () => {
+test("the cache never holds the secret", async () => {
   const instance = createInstance();
   await encrypt(instance, defaultSecret, "fingerprint");
 
-  assert.match(instance.derivedKey.fingerprint, /^[0-9a-f]{64}$/);
-  assert.deepStrictEqual(Object.keys(instance.derivedKey).sort(), ["fingerprint", "pending", "saltFingerprint"]);
+  assert.strictEqual(instance.derivedKeys.size, 2);
+  for (const [fingerprint, slot] of instance.derivedKeys) {
+    assert.match(fingerprint, /^[0-9a-f]{64}$/);
+    assert.deepStrictEqual(Object.keys(slot), ["pending"]);
+  }
 });
 
 test("output stays readable by the v3 format", async () => {
@@ -445,7 +508,12 @@ test("output stays readable by the v3 format", async () => {
 
 test("scrypt and argon2 also derive once per secret", async (suite) => {
   for (const mode of ["scrypt", "argon2"]) {
-    await suite.test(mode, async () => {
+    await suite.test(mode, async (t) => {
+      if (typeof crypto[mode] !== "function") {
+        t.skip(`crypto.${mode} is not available on ${process.version}`);
+        return;
+      }
+
       const instance = createInstance({ use_scrypt: mode === "scrypt", use_argon2: mode === "argon2" });
       const original = crypto[mode];
       let calls = 0;
@@ -515,7 +583,7 @@ test("a KDF that returns a wrong-length key is rejected and not cached", async (
   try {
     const instance = createInstance();
     await assert.rejects(encrypt(instance, defaultSecret, "empty key"), { message: "Unable to derive key!" });
-    assert.strictEqual(instance.derivedKey, null, "slot is cleared");
+    assert.strictEqual(instance.derivedKeys.size, 0, "cache is cleared");
 
     const ciphertext = await encrypt(instance, defaultSecret, "recovers");
     assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "recovers");
