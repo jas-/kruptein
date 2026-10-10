@@ -143,12 +143,6 @@ The included test harness, invoked with `npm test`, makes every attempt to trap 
 
 This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
 
-📊 Benchmark harness
-------------
-Run `npm run bench` for a human-readable benchmark report or `npm run bench:json` for JSON output.
-
-The benchmark measures per-case wall time, CPU, memory, process disk I/O and, when available, GPU telemetry.
-
 
 🧠 References
 -----------------------
