@@ -310,9 +310,240 @@ test("uses the async scrypt API when available", async () => {
     const ciphertext = await encrypt(instance, defaultSecret, "async scrypt");
 
     assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "async scrypt");
-    assert.ok(asyncScryptCalls >= 2);
+    assert.strictEqual(asyncScryptCalls, 1);
   } finally {
     crypto.scrypt = originalScrypt;
     crypto.scryptSync = originalScryptSync;
   }
+});
+
+function countPbkdf2Calls(run) {
+  const originalPbkdf2 = crypto.pbkdf2;
+  let calls = 0;
+
+  crypto.pbkdf2 = (...args) => {
+    calls += 1;
+    return originalPbkdf2(...args);
+  };
+
+  return run().then(
+    (result) => {
+      crypto.pbkdf2 = originalPbkdf2;
+      return { result, calls };
+    },
+    (error) => {
+      crypto.pbkdf2 = originalPbkdf2;
+      throw error;
+    }
+  );
+}
+
+test("derives the key once per secret per instance", async () => {
+  const instance = createInstance({ use_asn1: false });
+  const { calls, result } = await countPbkdf2Calls(async () => {
+    const payloads = [];
+    for (let index = 0; index < 5; index += 1) {
+      payloads.push(JSON.parse(await encrypt(instance, defaultSecret, `message ${index}`)));
+    }
+
+    for (const [index, payload] of payloads.entries()) {
+      assert.strictEqual(await decrypt(instance, defaultSecret, JSON.stringify(payload)), `message ${index}`);
+    }
+
+    return payloads;
+  });
+
+  assert.strictEqual(calls, 1);
+  assert.strictEqual(new Set(result.map((payload) => payload.salt)).size, 1, "salt is reused");
+  assert.strictEqual(new Set(result.map((payload) => payload.iv)).size, 5, "every IV is unique");
+  assert.strictEqual(new Set(result.map((payload) => payload.ct)).size, 5, "every ciphertext differs");
+});
+
+test("concurrent first calls share a single derivation", async () => {
+  const instance = createInstance();
+  const { calls } = await countPbkdf2Calls(() => Promise.all(
+    Array.from({ length: 25 }, (_, index) => encrypt(instance, defaultSecret, `burst ${index}`))
+  ));
+
+  assert.strictEqual(calls, 1);
+});
+
+test("the slot is per instance", async () => {
+  const { calls } = await countPbkdf2Calls(async () => {
+    await encrypt(createInstance(), defaultSecret, "instance one");
+    await encrypt(createInstance(), defaultSecret, "instance two");
+  });
+
+  assert.strictEqual(calls, 2);
+});
+
+test("switching secrets re-derives", async () => {
+  const instance = createInstance();
+  const { calls } = await countPbkdf2Calls(async () => {
+    await encrypt(instance, defaultSecret, "first");
+    await encrypt(instance, alternateSecret, "second");
+    await encrypt(instance, defaultSecret, "third");
+  });
+
+  assert.strictEqual(calls, 3);
+});
+
+test("decrypting a foreign salt derives once while the salt is unchanged", async () => {
+  const encryptor = createInstance({ use_asn1: false });
+  const first = await encrypt(encryptor, defaultSecret, "foreign one");
+  const second = await encrypt(encryptor, defaultSecret, "foreign two");
+
+  const decryptor = createInstance({ use_asn1: false });
+  const { calls } = await countPbkdf2Calls(async () => {
+    assert.strictEqual(await decrypt(decryptor, defaultSecret, first), "foreign one");
+    assert.strictEqual(await decrypt(decryptor, defaultSecret, second), "foreign two");
+  });
+
+  assert.strictEqual(calls, 1);
+});
+
+test("a failed derivation is not kept in the slot", async () => {
+  const originalPbkdf2 = crypto.pbkdf2;
+  let failNext = true;
+
+  crypto.pbkdf2 = (...args) => {
+    if (failNext) {
+      failNext = false;
+      process.nextTick(() => args[args.length - 1](new Error("boom")));
+      return undefined;
+    }
+    return originalPbkdf2(...args);
+  };
+
+  try {
+    const instance = createInstance();
+    await assert.rejects(encrypt(instance, defaultSecret, "fails"), { message: "Unable to derive key!" });
+    const ciphertext = await encrypt(instance, defaultSecret, "recovers");
+    assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "recovers");
+  } finally {
+    crypto.pbkdf2 = originalPbkdf2;
+  }
+});
+
+test("the slot never holds the secret", async () => {
+  const instance = createInstance();
+  await encrypt(instance, defaultSecret, "fingerprint");
+
+  assert.match(instance.derivedKey.fingerprint, /^[0-9a-f]{64}$/);
+  assert.deepStrictEqual(Object.keys(instance.derivedKey).sort(), ["fingerprint", "pending", "saltFingerprint"]);
+});
+
+test("output stays readable by the v3 format", async () => {
+  // Reusing the derived key does not change the ciphertext layout: v3 readers
+  // decrypt v4 output by deriving from the salt field as before.
+  const instance = createInstance({ use_asn1: false });
+  const payload = JSON.parse(await encrypt(instance, defaultSecret, "format check"));
+
+  assert.deepStrictEqual(Object.keys(payload).sort(), ["aad", "at", "ct", "hmac", "iv", "salt"]);
+  assert.strictEqual(Buffer.from(payload.salt, "base64").length, 128);
+});
+
+test("scrypt and argon2 also derive once per secret", async (suite) => {
+  for (const mode of ["scrypt", "argon2"]) {
+    await suite.test(mode, async () => {
+      const instance = createInstance({ use_scrypt: mode === "scrypt", use_argon2: mode === "argon2" });
+      const original = crypto[mode];
+      let calls = 0;
+
+      crypto[mode] = (...args) => {
+        calls += 1;
+        return original(...args);
+      };
+
+      try {
+        const first = await encrypt(instance, defaultSecret, "kdf one");
+        const second = await encrypt(instance, defaultSecret, "kdf two");
+        assert.strictEqual(await decrypt(instance, defaultSecret, first), "kdf one");
+        assert.strictEqual(await decrypt(instance, defaultSecret, second), "kdf two");
+      } finally {
+        crypto[mode] = original;
+      }
+
+      assert.strictEqual(calls, 1);
+    });
+  }
+});
+
+test("derived key material is non-empty, keySize bytes and salt-bound", async (suite) => {
+  const derive = (instance, secret, salt) => new Promise((resolve, reject) => {
+    instance.deriveKey(secret, salt, (error, keyMaterial) => (error ? reject(new Error(error)) : resolve(keyMaterial)));
+  });
+
+  for (const mode of keyDerivationModes) {
+    await suite.test(mode, async () => {
+      const options = { use_scrypt: mode === "scrypt", use_argon2: mode === "argon2" };
+      const instance = createInstance(options);
+      const first = await derive(instance, defaultSecret, null);
+
+      assert.ok(Buffer.isBuffer(first.key));
+      assert.strictEqual(first.key.length, instance.keySize);
+      assert.ok(!first.key.every((byte) => byte === 0), "key is not all zero");
+      assert.ok(new Set(first.key).size > 8, "key is not degenerate");
+      assert.strictEqual(first.salt.length, 128);
+      assert.ok(!first.salt.every((byte) => byte === 0), "salt is not all zero");
+
+      const sameInputs = await derive(createInstance(options), defaultSecret, first.salt);
+      assert.ok(first.key.equals(sameInputs.key), "deterministic for (secret, salt)");
+
+      const otherSalt = await derive(createInstance(options), defaultSecret, crypto.randomBytes(128));
+      assert.ok(!first.key.equals(otherSalt.key), "differs across salts");
+
+      const otherSecret = await derive(createInstance(options), alternateSecret, first.salt);
+      assert.ok(!first.key.equals(otherSecret.key), "differs across secrets");
+    });
+  }
+});
+
+test("a KDF that returns a wrong-length key is rejected and not cached", async () => {
+  const originalPbkdf2 = crypto.pbkdf2;
+  let bogus = true;
+
+  crypto.pbkdf2 = (...args) => {
+    if (bogus) {
+      bogus = false;
+      process.nextTick(() => args[args.length - 1](null, Buffer.alloc(0)));
+      return undefined;
+    }
+    return originalPbkdf2(...args);
+  };
+
+  try {
+    const instance = createInstance();
+    await assert.rejects(encrypt(instance, defaultSecret, "empty key"), { message: "Unable to derive key!" });
+    assert.strictEqual(instance.derivedKey, null, "slot is cleared");
+
+    const ciphertext = await encrypt(instance, defaultSecret, "recovers");
+    assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "recovers");
+  } finally {
+    crypto.pbkdf2 = originalPbkdf2;
+  }
+});
+
+test("IVs stay unique under a reused key", async () => {
+  const instance = createInstance({ use_asn1: false });
+  const sampleSize = 20000;
+  const ivs = new Set();
+  const ciphertexts = new Set();
+  const authTags = new Set();
+  let salt;
+
+  for (let index = 0; index < sampleSize; index += 1) {
+    const payload = JSON.parse(await encrypt(instance, defaultSecret, "identical plaintext"));
+    salt = salt || payload.salt;
+
+    assert.strictEqual(payload.salt, salt, "the derived key (salt) is reused");
+    assert.strictEqual(Buffer.from(payload.iv, "base64").length, 12);
+    ivs.add(payload.iv);
+    ciphertexts.add(payload.ct);
+    authTags.add(payload.at);
+  }
+
+  assert.strictEqual(ivs.size, sampleSize, "no IV collision");
+  assert.strictEqual(ciphertexts.size, sampleSize, "identical plaintext never yields identical ciphertext");
+  assert.strictEqual(authTags.size, sampleSize, "auth tags are unique");
 });

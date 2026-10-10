@@ -62,6 +62,20 @@ To install `npm install kruptein`
 *   `.set(secret, plaintext, [aad], callback)`
 *   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
 
+#### Derived key reuse
+
+Since v4 an instance remembers the last key it derived. The first `.set()` or
+`.get()` call for a secret pays the PBKDF2, scrypt or Argon2 cost. Every later
+call on the same instance with the same secret and salt reuses that key.
+Concurrent first calls share one derivation.
+
+The cache holds one key per instance. A call with a different secret, or a
+`.get()` with a ciphertext that carries a different salt, replaces it. Use one
+instance per secret when an application handles several secrets.
+
+The ciphertext format is unchanged from v3: `.set()` reuses the salt that
+belongs to the cached key, and v3 readers decrypt v4 output as before.
+
 
 🛠️ Options
 -------
