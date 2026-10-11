@@ -1,6 +1,6 @@
 {
   "name": "kruptein",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "crypto; from kruptein to hide or conceal",
   "keywords": [
     "crypto",
@@ -43,6 +43,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@jas-/asn.1": ">=5"
+    "@jas-/asn.1": ">5"
   }
 }
