@@ -11,5 +11,6 @@ coverage/
 .travis.yml
 coverage.lcov
 .nyc_output/
-.github/workflows/node.js.yml
+.github/
 *.log
+.test/
