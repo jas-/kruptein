@@ -9,11 +9,6 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
 
-🔬 Sandbox
--------
- Here you can experiment with the module to ensure it will suit your needs. [kruptein @ codesandbox.io](https://codesandbox.io/p/sandbox/pensive-mclaren-k3shlp)
-
-
 🔒 Encrypt
 -----------------
 Encrypt a plaintext message using the default options.
