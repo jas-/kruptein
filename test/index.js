@@ -563,6 +563,21 @@ test("a failed derivation is not kept in the slot", async () => {
   }
 });
 
+test("an exception thrown in the callback is not an unhandled rejection", () => {
+  const script = `
+    process.on("unhandledRejection", () => process.exit(2));
+    process.on("uncaughtException", () => process.exit(3));
+    require(${JSON.stringify(require.resolve("../index.js"))})().set(
+      ${JSON.stringify(defaultSecret)},
+      "throws",
+      () => { throw new Error("callback failure"); }
+    );
+  `;
+  const result = require("node:child_process").spawnSync(process.execPath, ["-e", script]);
+
+  assert.strictEqual(result.status, 3);
+});
+
 test("the cache never holds the secret", async () => {
   const instance = createInstance();
   await encrypt(instance, defaultSecret, "fingerprint");
