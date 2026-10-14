@@ -226,6 +226,7 @@ test("round-trips JSON payload output when ASN.1 encoding is disabled", async ()
   assert.strictEqual(typeof payload.hmac, "string");
   assert.strictEqual(typeof payload.iv, "string");
   assert.strictEqual(typeof payload.salt, "string");
+  assert.strictEqual(typeof payload.nonce, "string");
   assert.strictEqual(typeof payload.at, "string");
   assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext), "json payload");
 });
@@ -355,6 +356,7 @@ test("derives the key once per secret per instance", async () => {
 
   assert.strictEqual(calls, 1);
   assert.strictEqual(new Set(result.map((payload) => payload.salt)).size, 1, "salt is reused");
+  assert.strictEqual(new Set(result.map((payload) => payload.nonce)).size, 5, "every nonce is unique");
   assert.strictEqual(new Set(result.map((payload) => payload.iv)).size, 5, "every IV is unique");
   assert.strictEqual(new Set(result.map((payload) => payload.ct)).size, 5, "every ciphertext differs");
 });
@@ -390,7 +392,7 @@ test("switching back to a cached secret does not re-derive", async () => {
 
 test("switching secrets re-derives when the cache is full", async () => {
   const instance = createInstance();
-  instance.keyCacheSize = 2;
+  instance.keyCacheSize = 1;
   const { calls } = await countPbkdf2Calls(async () => {
     await encrypt(instance, defaultSecret, "first");
     await encrypt(instance, alternateSecret, "second");
@@ -489,21 +491,45 @@ test("the cache never holds the secret", async () => {
   const instance = createInstance();
   await encrypt(instance, defaultSecret, "fingerprint");
 
-  assert.strictEqual(instance.derivedKeys.size, 2);
+  assert.strictEqual(instance.derivedKeys.size, 1);
   for (const [fingerprint, slot] of instance.derivedKeys) {
     assert.match(fingerprint, /^[0-9a-f]{64}$/);
     assert.deepStrictEqual(Object.keys(slot), ["pending"]);
   }
 });
 
-test("output stays readable by the v3 format", async () => {
-  // Reusing the derived key does not change the ciphertext layout: v3 readers
-  // decrypt v4 output by deriving from the salt field as before.
+test("output carries the salt and a per-message nonce", async () => {
   const instance = createInstance({ use_asn1: false });
   const payload = JSON.parse(await encrypt(instance, defaultSecret, "format check"));
 
-  assert.deepStrictEqual(Object.keys(payload).sort(), ["aad", "at", "ct", "hmac", "iv", "salt"]);
+  assert.deepStrictEqual(Object.keys(payload).sort(), ["aad", "at", "ct", "hmac", "iv", "nonce", "salt"]);
   assert.strictEqual(Buffer.from(payload.salt, "base64").length, 128);
+  assert.strictEqual(Buffer.from(payload.nonce, "base64").length, 32);
+});
+
+test("message keys differ per nonce and per purpose", async () => {
+  const instance = createInstance();
+  const masterKey = crypto.randomBytes(instance.keySize);
+  const first = instance.deriveMessageKeys(masterKey, crypto.randomBytes(instance.nonceSize));
+  const second = instance.deriveMessageKeys(masterKey, crypto.randomBytes(instance.nonceSize));
+
+  assert.strictEqual(first.key.length, instance.keySize);
+  assert.ok(!first.key.equals(first.hmacKey), "cipher and hmac keys differ");
+  assert.ok(!first.key.equals(second.key), "cipher keys differ across nonces");
+  assert.ok(first.key.equals(instance.deriveMessageKeys(masterKey, first.nonce).key), "deterministic per nonce");
+});
+
+test("rejects ciphertext when the nonce is tampered", async () => {
+  const instance = createInstance({ use_asn1: false });
+  const ciphertext = await encrypt(instance, defaultSecret, "nonce check");
+  const payload = JSON.parse(ciphertext);
+
+  payload.nonce = mutateBase64String(payload.nonce);
+
+  await assert.rejects(
+    decrypt(instance, defaultSecret, JSON.stringify(payload)),
+    { message: "Encrypted session was tampered with!" }
+  );
 });
 
 test("scrypt and argon2 also derive once per secret", async (suite) => {
@@ -546,7 +572,7 @@ test("derived key material is non-empty, keySize bytes and salt-bound", async (s
     await suite.test(mode, async () => {
       const options = { use_scrypt: mode === "scrypt", use_argon2: mode === "argon2" };
       const instance = createInstance(options);
-      const first = await derive(instance, defaultSecret, null);
+      const first = await derive(instance, defaultSecret, instance.salt);
 
       assert.ok(Buffer.isBuffer(first.key));
       assert.strictEqual(first.key.length, instance.keySize);
@@ -592,9 +618,10 @@ test("a KDF that returns a wrong-length key is rejected and not cached", async (
   }
 });
 
-test("IVs stay unique under a reused key", async () => {
+test("IVs and nonces stay unique under a reused salt", async () => {
   const instance = createInstance({ use_asn1: false });
   const sampleSize = 20000;
+  const nonces = new Set();
   const ivs = new Set();
   const ciphertexts = new Set();
   const authTags = new Set();
@@ -606,11 +633,13 @@ test("IVs stay unique under a reused key", async () => {
 
     assert.strictEqual(payload.salt, salt, "the derived key (salt) is reused");
     assert.strictEqual(Buffer.from(payload.iv, "base64").length, 12);
+    nonces.add(payload.nonce);
     ivs.add(payload.iv);
     ciphertexts.add(payload.ct);
     authTags.add(payload.at);
   }
 
+  assert.strictEqual(nonces.size, sampleSize, "no nonce collision");
   assert.strictEqual(ivs.size, sampleSize, "no IV collision");
   assert.strictEqual(ciphertexts.size, sampleSize, "identical plaintext never yields identical ciphertext");
   assert.strictEqual(authTags.size, sampleSize, "auth tags are unique");

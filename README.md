@@ -57,21 +57,6 @@ To install `npm install kruptein`
 *   `.set(secret, plaintext, [aad], callback)`
 *   `.get(secret, ciphertext, [{at: auth_tag, aad: aad}], callback)`
 
-#### Derived key reuse
-
-Since v4 an instance remembers the last key it derived. The first `.set()` or
-`.get()` call for a secret pays the PBKDF2, scrypt or Argon2 cost. Every later
-call on the same instance with the same secret and salt reuses that key.
-Concurrent first calls share one derivation.
-
-The cache holds one key per instance. A call with a different secret, or a
-`.get()` with a ciphertext that carries a different salt, replaces it. Use one
-instance per secret when an application handles several secrets.
-
-The ciphertext format is unchanged from v3: `.set()` reuses the salt that
-belongs to the cached key, and v3 readers decrypt v4 output as before.
-
-
 🛠️ Options
 -------
 Industry standards are used for the algorithm, hashing algorithm, key & IV sizes.
@@ -147,6 +132,7 @@ This module conforms to industry recommendations regarding algorithm type, mode,
 *   [RFC 2104](https://tools.ietf.org/html/rfc2104): HMAC: Keyed-Hashing for Message Authentication
 *   [RFC 4086](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
+*   [RFC 5869](https://tools.ietf.org/html/rfc5869): HMAC-based Extract-and-Expand Key Derivation Function (HKDF)
 *   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
 *   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
 *   [RFC 9106](https://datatracker.ietf.org/doc/html/rfc9106): Argon2 Memory-Hard Function for Password Hashing and Proof-of-Work Applications
