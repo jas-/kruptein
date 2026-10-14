@@ -123,6 +123,8 @@ The included test harness, invoked with `npm test`, makes every attempt to trap 
 
 This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
 
+`npm test` covers the default cipher, hash & encoding. `npm run test:full` (or `KRUPTEIN_FULL_MATRIX=1`) covers every supported cipher, hash & encoding reported by `crypto.getCiphers()` & `crypto.getHashes()`.
+
 
 🧠 References
 -----------------------
@@ -130,24 +132,34 @@ This module conforms to industry recommendations regarding algorithm type, mode,
 
 **RFC:**
 *   [RFC 2104](https://tools.ietf.org/html/rfc2104): HMAC: Keyed-Hashing for Message Authentication
+*   [RFC 3610](https://tools.ietf.org/html/rfc3610): Counter with CBC-MAC (CCM)
 *   [RFC 4086](https://tools.ietf.org/html/rfc4086): Randomness Requirements for Security
+*   [RFC 4648](https://tools.ietf.org/html/rfc4648): The Base16, Base32, and Base64 Data Encodings
 *   [RFC 5084](https://tools.ietf.org/html/rfc5084): Using AES-CCM and AES-GCM Authenticated Encryption
+*   [RFC 5794](https://tools.ietf.org/html/rfc5794): A Description of the ARIA Encryption Algorithm
 *   [RFC 5869](https://tools.ietf.org/html/rfc5869): HMAC-based Extract-and-Expand Key Derivation Function (HKDF)
+*   [RFC 7253](https://tools.ietf.org/html/rfc7253): The OCB Authenticated-Encryption Algorithm
 *   [RFC 7914](https://tools.ietf.org/html/rfc7914): The scrypt Password-Based Key Derivation Function
 *   [RFC 8018](https://tools.ietf.org/html/rfc8018): Password-Based Cryptography Specification
+*   [RFC 8259](https://tools.ietf.org/html/rfc8259): The JavaScript Object Notation (JSON) Data Interchange Format
+*   [RFC 8439](https://tools.ietf.org/html/rfc8439): ChaCha20 and Poly1305 for IETF Protocols
 *   [RFC 9106](https://datatracker.ietf.org/doc/html/rfc9106): Argon2 Memory-Hard Function for Password Hashing and Proof-of-Work Applications
+*   [X.690](https://www.itu.int/rec/T-REC-X.690-202102-I/en): ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)
 *   [X.697](https://www.itu.int/rec/T-REC-X.697-201710-I/en): ASN.1 encoding rules: Specifications of JavaScript Object Notation Encoding Rules (JER)
 
 
 **NIST:**
 *   [SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf): Block cipher modes of operation
-*   [SP 800-38B](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
+*   [SP 800-38C](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38c.pdf): Recommendation for Block Cipher Modes of Operation: The CCM Mode for Authentication and Confidentiality
+*   [SP 800-38D](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf): Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC
+*   [SP 800-56C](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Cr2.pdf): Recommendation for Key-Derivation Methods in Key-Establishment Schemes
 *   [SP 800-57P1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf): Recommendations for key management
 *   [SP 800-107](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-107r1.pdf): Recommendation for Applications Using Approved Hash Algorithms
 *   [SP 800-108](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-108.pdf): Recommendation for Key Derivation Using Pseudorandom Functions
 *   [SP 800-131A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf): Transitioning the Use of Cryptographic Algorithms and Key Lengths
 *   [SP 800-132](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-132.pdf): Recommendation for Password-Based Key Derivation
 *   [SP 800-175B](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175B.pdf): Guideline for Using Cryptographic Standards in the Federal Government
+*   [SP 800-90A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf): Recommendation for Random Number Generation Using Deterministic Random Bit Generators
 
 
 **FIPS:**
@@ -155,6 +167,7 @@ This module conforms to industry recommendations regarding algorithm type, mode,
 *   [FIPS 198-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf): The Keyed-Hash Message Authentication Code (HMAC)
 *   [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf): Secure Hash Standard (SHS)
 *   [FIPS 186-5](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf): Digital Signature Standard (DSS)
+*   [FIPS 202](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf): SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions
 
 
 📡 Contributing

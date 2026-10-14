@@ -140,10 +140,23 @@ test("filters discovered algorithms for the full matrix", () => {
   });
 
   assert.deepStrictEqual(matrix, {
-    algorithms: ["aes-256-gcm", "AES-192-CBC", "chacha20-poly1305"],
+    algorithms: ["aes-256-gcm", "AES-192-CBC", "aes-256-ccm", "chacha20-poly1305"],
     hashes: ["sha224", "SHA3-256", "sha384", "sha512"],
     encodings: ["binary", "hex", "base64"],
   });
+});
+
+test("selects every supported cipher, hash and encoding with full: true", () => {
+  const matrix = selectCryptoMatrix({ full: true });
+
+  for (const algorithm of ["aes-256-gcm", "aes-256-ccm", "aes-256-ocb", "aes-256-cbc", "chacha20-poly1305"]) {
+    assert.ok(matrix.algorithms.includes(algorithm), `${algorithm} is selected`);
+  }
+  for (const algorithm of matrix.algorithms) {
+    assert.ok(!createKruptein({ algorithm }).isUnsupportedAlgorithm(), `${algorithm} is supported`);
+  }
+  assert.ok(matrix.hashes.includes("sha384"));
+  assert.deepStrictEqual(matrix.encodings, ["binary", "hex", "base64"]);
 });
 
 test("rejects an empty discovered full matrix", () => {
@@ -278,7 +291,7 @@ test("applies the public key_size override", async () => {
 test("round-trips and authenticates every AEAD cipher", async (suite) => {
   const ciphers = crypto.getCiphers();
 
-  for (const algorithm of ["chacha20-poly1305", "aes-256-ocb", "aes-192-gcm", "aria-256-gcm"]) {
+  for (const algorithm of ["chacha20-poly1305", "aes-256-ccm", "aes-256-ocb", "aes-192-gcm", "aria-256-gcm"]) {
     await suite.test(algorithm, async (t) => {
       if (!ciphers.includes(algorithm)) {
         t.skip(`${algorithm} is not available on ${process.version}`);

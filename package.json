@@ -37,7 +37,8 @@
     "url": "https://github.com/jas-/kruptein/issues"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:full": "KRUPTEIN_FULL_MATRIX=1 node --test"
   },
   "engines": {
     "node": ">=18"
