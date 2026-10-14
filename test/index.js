@@ -140,7 +140,7 @@ test("filters discovered algorithms for the full matrix", () => {
   });
 
   assert.deepStrictEqual(matrix, {
-    algorithms: ["aes-256-gcm", "AES-192-CBC"],
+    algorithms: ["aes-256-gcm", "AES-192-CBC", "chacha20-poly1305"],
     hashes: ["sha224", "SHA3-256", "sha384", "sha512"],
     encodings: ["binary", "hex", "base64"],
   });
@@ -273,6 +273,30 @@ test("applies the public key_size override", async () => {
     encrypt(instance, defaultSecret, "invalid key size"),
     { message: "Unable to create ciphertext!" }
   );
+});
+
+test("round-trips and authenticates every AEAD cipher", async (suite) => {
+  const ciphers = crypto.getCiphers();
+
+  for (const algorithm of ["chacha20-poly1305", "aes-256-ocb", "aes-192-gcm", "aria-256-gcm"]) {
+    await suite.test(algorithm, async (t) => {
+      if (!ciphers.includes(algorithm)) {
+        t.skip(`${algorithm} is not available on ${process.version}`);
+        return;
+      }
+
+      const instance = createInstance({ use_asn1: false, algorithm });
+      const ciphertext = await encrypt(instance, defaultSecret, "aead check", "aad");
+      const payload = JSON.parse(ciphertext);
+
+      assert.strictEqual(instance.isAeadMode, true);
+      assert.strictEqual(Buffer.from(payload.at, "base64").length, 16);
+      assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext, { aad: "aad" }), "aead check");
+
+      await assert.rejects(decrypt(instance, defaultSecret, ciphertext, { aad: "other" }));
+      await assert.rejects(decrypt(instance, defaultSecret, ciphertext, { at: mutateBase64String(payload.at) }));
+    });
+  }
 });
 
 test("rejects insecure cipher modes", async () => {

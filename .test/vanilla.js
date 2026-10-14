@@ -30,8 +30,8 @@ function selectCryptoMatrix({
   }
 
   const algorithms = (availableCiphers || crypto.getCiphers()).filter((cipher) => (
-    /^aes/i.test(cipher)
-      && !/hmac|wrap|ccm|ecb|ocb2|siv|xts|^aes-?128(?:-|$)/i.test(cipher)
+    /^(?:aes|aria|chacha20-poly1305)/i.test(cipher)
+      && !/hmac|wrap|ccm|ecb|ocb2|siv|xts|^(?:aes|aria)-?128(?:-|$)/i.test(cipher)
   ));
   const hashes = (availableHashes || crypto.getHashes()).filter((hash) => (
     /^sha[2-5]/i.test(hash) && !/rsa/i.test(hash)
