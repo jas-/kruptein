@@ -10,7 +10,8 @@ const quickMatrix = {
   encodings: ["base64"],
 };
 
-const fullEncodings = ["binary", "hex", "base64"];
+const fullEncodings = ["ascii", "base64", "base64url", "binary", "hex", "latin1", "ucs2", "utf8", "utf16le"];
+const unsupportedMessage = /not supported!$|^Unsupported encoding!$|^Unable to create ciphertext!$/;
 
 function isFullMatrixRequested({ argv = process.argv, env = process.env } = {}) {
   return argv.includes("--full") || env.KRUPTEIN_FULL_MATRIX === "1";
@@ -29,13 +30,8 @@ function selectCryptoMatrix({
     };
   }
 
-  const algorithms = (availableCiphers || crypto.getCiphers()).filter((cipher) => (
-    /^(?:aes|aria|chacha20-poly1305)/i.test(cipher)
-      && !/hmac|wrap|ecb|ocb2|siv|xts|^(?:aes|aria)-?128(?:-|$)/i.test(cipher)
-  ));
-  const hashes = (availableHashes || crypto.getHashes()).filter((hash) => (
-    /^sha[2-5]/i.test(hash) && !/rsa/i.test(hash)
-  ));
+  const algorithms = [...(availableCiphers || crypto.getCiphers())];
+  const hashes = [...(availableHashes || crypto.getHashes())];
 
   if (algorithms.length === 0 || hashes.length === 0) {
     throw new Error("No compatible ciphers or hashes were discovered for the full matrix");
@@ -130,10 +126,38 @@ function mutateBase64String(value) {
   return replacement + value.slice(1);
 }
 
+async function unsupportedReason(options) {
+  try {
+    await encrypt(createKruptein(createOptions(options)), defaultSecret, samplePhrases[0]);
+    return null;
+  } catch (error) {
+    assert.match(error.message, unsupportedMessage);
+    return error.message;
+  }
+}
+
 async function runRoundTripMatrix() {
   for (const algorithm of supportedAlgorithms) {
+    const algorithmReason = await unsupportedReason({ algorithm });
+    if (algorithmReason) {
+      console.log(`kruptein: { algorithm: "${algorithm}" } rejected: ${algorithmReason}`);
+      continue;
+    }
+
     for (const hashing of supportedHashes) {
+      const hashingReason = await unsupportedReason({ algorithm, hashing });
+      if (hashingReason) {
+        console.log(`kruptein: { algorithm: "${algorithm}", hashing: "${hashing}" } rejected: ${hashingReason}`);
+        continue;
+      }
+
       for (const encodeAs of supportedEncodings) {
+        const encodingReason = await unsupportedReason({ algorithm, hashing, encodeas: encodeAs });
+        if (encodingReason) {
+          console.log(`kruptein: { algorithm: "${algorithm}", hashing: "${hashing}", encodeas: "${encodeAs}" } rejected: ${encodingReason}`);
+          continue;
+        }
+
         for (const keyDerivationMode of keyDerivationModes) {
           const instance = createKruptein(createOptions({
             algorithm,
@@ -218,4 +242,5 @@ if (require.main === module) {
 module.exports = {
   isFullMatrixRequested,
   selectCryptoMatrix,
+  unsupportedMessage,
 };

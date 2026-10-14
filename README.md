@@ -64,7 +64,7 @@ The default key derivation function is `pbkdf2`, however use of the `scrypt` or 
 
 #### Cryptography options
 *   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
-*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`. Default: `sha384`.
+*   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`; SHA-2 & SHA-3 families only. Default: `sha384`.
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.
 *   `at_size`: (Optional) Authentication tag size. Applicable to `gcm` & `ocb` cipher modes. Default: `128`.
@@ -74,7 +74,7 @@ The default key derivation function is `pbkdf2`, however use of the `scrypt` or 
 *   `use_argon2`: (Optional) Use `.argon2id()` to derive a key. Requires node > v24. Default/Fallback: `.pbkdf2()`.
 
 #### Encoding options
-*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `hex`, & `base64`. Default: `base64`.
+*   `encodeas`: (Optional) Output encoding. Currently supports `binary`, `latin1`, `hex`, `base64` & `base64url`. Default: `base64`.
 *   `use_asn1`: (Optional) Disable the default ASN.1 encoding. Default: true
 
 
@@ -123,7 +123,7 @@ The included test harness, invoked with `npm test`, makes every attempt to trap 
 
 This can be seen within the `test/index.js` CI test harness under the HMAC, AT & AAD validation test cases.
 
-`npm test` covers the default cipher, hash & encoding. `npm run test:full` (or `KRUPTEIN_FULL_MATRIX=1`) covers every supported cipher, hash & encoding reported by `crypto.getCiphers()` & `crypto.getHashes()`.
+`npm test` covers the default cipher, hash & encoding. `npm run test:full` (or `KRUPTEIN_FULL_MATRIX=1`) feeds every cipher & hash reported by `crypto.getCiphers()` & `crypto.getHashes()`, and every `Buffer` encoding, through the library; unsupported combinations must be rejected with an error and supported ones must round-trip.
 
 
 🧠 References

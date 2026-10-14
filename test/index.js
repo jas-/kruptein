@@ -8,6 +8,7 @@ const createKruptein = require("../index.js");
 const {
   isFullMatrixRequested,
   selectCryptoMatrix,
+  unsupportedMessage,
 } = require("../.test/vanilla.js");
 
 const {
@@ -116,64 +117,72 @@ test("enables the full matrix with the environment variable", () => {
   }), true);
 });
 
-test("filters discovered algorithms for the full matrix", () => {
+test("passes every discovered cipher and hash through for the full matrix", () => {
   const matrix = selectCryptoMatrix({
     full: true,
-    availableCiphers: [
-      "aes-256-gcm",
-      "AES-192-CBC",
-      "aes-256-ccm",
-      "aes-256-ecb",
-      "aes-256-wrap",
-      "aes-256-xts",
-      "aes-128-gcm",
-      "chacha20-poly1305",
-    ],
-    availableHashes: [
-      "sha224",
-      "SHA3-256",
-      "sha384",
-      "sha512",
-      "RSA-SHA256",
-      "md5",
-    ],
+    availableCiphers: ["aes-256-gcm", "aes-256-ecb", "md5"],
+    availableHashes: ["sha384", "RSA-SHA256", "md5"],
   });
 
   assert.deepStrictEqual(matrix, {
-    algorithms: ["aes-256-gcm", "AES-192-CBC", "aes-256-ccm", "chacha20-poly1305"],
-    hashes: ["sha224", "SHA3-256", "sha384", "sha512"],
-    encodings: ["binary", "hex", "base64"],
+    algorithms: ["aes-256-gcm", "aes-256-ecb", "md5"],
+    hashes: ["sha384", "RSA-SHA256", "md5"],
+    encodings: ["ascii", "base64", "base64url", "binary", "hex", "latin1", "ucs2", "utf8", "utf16le"],
   });
 });
 
-test("selects every supported cipher, hash and encoding with full: true", () => {
+test("selects everything node reports with full: true", () => {
   const matrix = selectCryptoMatrix({ full: true });
 
-  for (const algorithm of ["aes-256-gcm", "aes-256-ccm", "aes-256-ocb", "aes-256-cbc", "chacha20-poly1305"]) {
-    assert.ok(matrix.algorithms.includes(algorithm), `${algorithm} is selected`);
+  assert.deepStrictEqual(matrix.algorithms, crypto.getCiphers());
+  assert.deepStrictEqual(matrix.hashes, crypto.getHashes());
+  for (const encodeas of matrix.encodings) {
+    assert.ok(Buffer.isEncoding(encodeas), `${encodeas} is a buffer encoding`);
   }
-  for (const algorithm of matrix.algorithms) {
-    assert.ok(!createKruptein({ algorithm }).isUnsupportedAlgorithm(), `${algorithm} is supported`);
-  }
-  assert.ok(matrix.hashes.includes("sha384"));
-  assert.deepStrictEqual(matrix.encodings, ["binary", "hex", "base64"]);
 });
 
 test("rejects an empty discovered full matrix", () => {
   assert.throws(
     () => selectCryptoMatrix({
       full: true,
-      availableCiphers: ["chacha20-poly1305"],
-      availableHashes: ["md5"],
+      availableCiphers: [],
+      availableHashes: [],
     }),
     { message: "No compatible ciphers or hashes were discovered for the full matrix" }
   );
 });
 
+async function unsupportedReason(options) {
+  try {
+    await encrypt(createKruptein(createOptions(options)), defaultSecret, samplePhrases[0]);
+    return null;
+  } catch (error) {
+    return error.message;
+  }
+}
+
 test("round-trips unicode strings for supported key derivation modes", async (suite) => {
   for (const algorithm of supportedAlgorithms) {
+    const algorithmReason = await unsupportedReason({ algorithm });
+    if (algorithmReason) {
+      await suite.test(`algorithm=${algorithm} rejected`, () => assert.match(algorithmReason, unsupportedMessage));
+      continue;
+    }
+
     for (const hashing of supportedHashes) {
+      const hashingReason = await unsupportedReason({ algorithm, hashing });
+      if (hashingReason) {
+        await suite.test(`algorithm=${algorithm} hashing=${hashing} rejected`, () => assert.match(hashingReason, unsupportedMessage));
+        continue;
+      }
+
       for (const encodeAs of supportedEncodings) {
+        const encodingReason = await unsupportedReason({ algorithm, hashing, encodeas: encodeAs });
+        if (encodingReason) {
+          await suite.test(`algorithm=${algorithm} hashing=${hashing} encoding=${encodeAs} rejected`, () => assert.match(encodingReason, unsupportedMessage));
+          continue;
+        }
+
         for (const keyDerivationMode of keyDerivationModes) {
           await suite.test(
             `algorithm=${algorithm} hashing=${hashing} encoding=${encodeAs} kdf=${keyDerivationMode}`,
@@ -319,6 +328,24 @@ test("rejects insecure cipher modes", async () => {
     encrypt(instance, defaultSecret, "test phrase"),
     { message: "Insecure cipher mode not supported!" }
   );
+});
+
+test("rejects insecure hash algorithms", async () => {
+  for (const hashing of ["md5", "sha1", "RSA-SHA256", "shake256"]) {
+    await assert.rejects(
+      encrypt(createInstance({ hashing }), defaultSecret, "test phrase"),
+      { message: "Insecure hash algorithm not supported!" }
+    );
+  }
+});
+
+test("rejects unsupported encodings", async () => {
+  for (const encodeas of ["utf8", "ascii", "ucs2"]) {
+    await assert.rejects(
+      encrypt(createInstance({ encodeas }), defaultSecret, "test phrase"),
+      { message: "Unsupported encoding!" }
+    );
+  }
 });
 
 test("rejects malformed ciphertext", async () => {
