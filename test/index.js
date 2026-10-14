@@ -244,6 +244,18 @@ test("rejects ciphertext when the HMAC is tampered but its length is unchanged",
   );
 });
 
+test("string AAD is bound byte for byte", async () => {
+  for (const encodeas of ["base64", "hex"]) {
+    const instance = createInstance({ use_asn1: false, encodeas });
+    const ciphertext = await encrypt(instance, defaultSecret, "aad check", "admin");
+
+    assert.strictEqual(await decrypt(instance, defaultSecret, ciphertext, { aad: "admin" }), "aad check");
+    for (const aad of ["admin!", "admin?", "ad min", "bob"]) {
+      await assert.rejects(decrypt(instance, defaultSecret, ciphertext, { aad }));
+    }
+  }
+});
+
 test("applies public iv_size and at_size overrides", async () => {
   const instance = createInstance({ use_asn1: false, iv_size: 16, at_size: 12 });
   const ciphertext = await encrypt(instance, defaultSecret, "override lengths");
