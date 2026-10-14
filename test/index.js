@@ -229,6 +229,21 @@ test("rejects secrets that fail complexity rules without throwing runtime errors
   );
 });
 
+test("accepts the object secret form with scrypt options in set()", async () => {
+  const secret = { secret: defaultSecret, opts: { N: 1024, r: 8, p: 1 } };
+  const ciphertext = await encrypt(createInstance({ use_scrypt: true }), secret, "object secret");
+
+  assert.strictEqual(await decrypt(createInstance({ use_scrypt: true }), secret, ciphertext), "object secret");
+  await assert.rejects(
+    decrypt(createInstance({ use_scrypt: true }), { secret: defaultSecret, opts: { N: 2048, r: 8, p: 1 } }, ciphertext),
+    { message: "Encrypted session was tampered with!" }
+  );
+  await assert.rejects(
+    encrypt(createInstance({ use_scrypt: true }), { secret: "weak", opts: {} }, "test phrase"),
+    { message: "The supplied secret failed to meet complexity requirements!" }
+  );
+});
+
 test("supports multiple secrets on the same instance", async () => {
   const instance = createInstance();
   const firstCiphertext = await encrypt(instance, defaultSecret, "first message");
