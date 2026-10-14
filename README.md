@@ -63,7 +63,7 @@ Industry standards are used for the algorithm, hashing algorithm, key & IV sizes
 The default key derivation function is `pbkdf2`, however use of the `scrypt` or `argon2` can be used as well.
 
 #### Cryptography options
-*   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`. Default: `aes-256-gcm`.
+*   `algorithm`: (Optional) Cipher algorithm from `crypto.getCiphers()`; AES or ARIA at 192 or 256 bits in `gcm`, `ccm`, `ocb` or `cbc` mode, or `chacha20-poly1305`. Default: `aes-256-gcm`.
 *   `hashing`: (Optional) Hash algorithm from `crypto.getHashes()`; SHA-2 & SHA-3 families only. Default: `sha384`.
 *   `key_size`: (Optional) Key size bytes (should match block size of algorithm). Default: `32`
 *   `iv_size`: (Optional) IV size bytes. Default: `16`.

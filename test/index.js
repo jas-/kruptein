@@ -345,6 +345,20 @@ test("rejects insecure cipher modes", async () => {
   );
 });
 
+test("accepts only the allowlisted ciphers", async () => {
+  for (const algorithm of ["aes-256-cbc", "aria-192-ccm", "chacha20-poly1305"]) {
+    const ciphertext = await encrypt(createInstance({ algorithm }), defaultSecret, "allowlisted");
+    assert.strictEqual(await decrypt(createInstance({ algorithm }), defaultSecret, ciphertext), "allowlisted");
+  }
+
+  for (const algorithm of ["aes-256-ctr", "aes256", "camellia-256-cbc", "chacha20", "id-aes256-GCM"]) {
+    await assert.rejects(
+      encrypt(createInstance({ algorithm }), defaultSecret, "test phrase"),
+      { message: "Insecure cipher mode not supported!" }
+    );
+  }
+});
+
 test("rejects insecure hash algorithms", async () => {
   for (const hashing of ["md5", "sha1", "RSA-SHA256", "shake256"]) {
     await assert.rejects(
