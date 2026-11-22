@@ -8,6 +8,8 @@ crypto (krip-toh); from `kruptein` to hide or conceal.
 [![Known Vulnerabilities](https://snyk.io/test/github/jas-/kruptein/badge.svg)](https://snyk.io/test/github/jas-/kruptein)
 ![Build Status](https://github.com/jas-/kruptein/actions/workflows/node.js.yml/badge.svg)
 
+![Encrypt and decrypt a message with kruptein](.github/media/encrypt.gif)
+
 
 🔒 Encrypt
 -----------------
@@ -45,6 +47,15 @@ kruptein.get(secret, ciphertext, (error, plaintext) => {
   console.log(plaintext);
 });
 ```
+
+
+🌍 Unicode
+------------------
+The plaintext can be any Unicode string. Each phrase below goes through `.set()` and `.get()` and returns unchanged.
+
+![Round-trip phrases in many languages](.github/media/languages.gif)
+
+The test harness also round-trips phrases in scripts that need complex text shaping, such as Hindi, Punjabi, Bengali, Arabic & Armenian.
 
 
 📦 Install
@@ -96,6 +107,10 @@ const opts = {
 
 const kruptein = require("kruptein")(opts || {});
 ```
+
+This example uses `chacha20-poly1305` with an `argon2` derived key and additional authenticated data (AAD). When the secret is wrong, `.get()` returns an error.
+
+![Custom options, AAD and a wrong secret](.github/media/options.gif)
 
 
 🗝️ Usage
